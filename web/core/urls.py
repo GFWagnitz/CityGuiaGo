@@ -1,0 +1,27 @@
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('me/', views.UsuarioSelf.as_view(), name='usuario-self'), #TODO: Corrigir usuario e user nao sao iguais
+
+    path('categorias/', views.CategoriaList.as_view(), name='categoria-list'),
+    path('categorias/<uuid:id>/', views.CategoriaDetail.as_view(), name='categoria-detail'),
+
+    path('atracoes/', views.AtracaoList.as_view(), name='atracao-list'),
+    path('atracoes/<uuid:id>/', views.AtracaoDetail.as_view(), name='atracao-detail'),
+
+    path('roteiros/', views.RoteiroList.as_view(), name='roteiro-list'),
+    path('roteiros/<uuid:id>/', views.RoteiroDetail.as_view(), name='roteiro-detail'),
+
+    path('avaliacoes/', views.AvaliacaoList.as_view(), name='avaliacao-list'),
+    path('avaliacoes/<uuid:id>/', views.AvaliacaoDetail.as_view(), name='avaliacao-detail'),
+
+    path('ofertas/', views.OfertaList.as_view(), name='oferta-list'),
+    path('ofertas/<uuid:id>/', views.OfertaDetail.as_view(), name='oferta-detail'),
+
+    path('denuncias/', views.DenunciaList.as_view(), name='denuncia-list'),
+    path('denuncias/<uuid:id>/', views.DenunciaDetail.as_view(), name='denuncia-detail'),
+
+    path('imagens/', views.ImagemList.as_view(), name='imagem-list'), # Add URL for Imagem list
+    path('imagens/<uuid:id>/', views.ImagemDetail.as_view(), name='imagem-detail'), # Add URL for Imagem detail
+]
