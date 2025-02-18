@@ -26,6 +26,7 @@ SECRET_KEY = 'django-insecure-k7c!3_slob#!zms#jn^pu&8v$pu17f2ovp5-3-)&1do3esoj&%
 DEBUG = True
 
 ALLOWED_HOSTS = ['cityguiago.com']
+CSRF_TRUSTED_ORIGINS = ['https://cityguiago.com/']
 
 
 # Application definition
