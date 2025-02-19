@@ -43,4 +43,6 @@ dependencies {
     implementation(libs.compose.material3)
     implementation(libs.androidx.activity.compose)
     debugImplementation(libs.compose.ui.tooling)
+    implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation(libs.ktor.client.android)
 }

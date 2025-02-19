@@ -1,40 +1,45 @@
 package br.ufes.inf.cityguiago.android
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import br.ufes.inf.cityguiago.Greeting
+import android.widget.ArrayAdapter
+import android.widget.ListView
+import androidx.appcompat.app.AppCompatActivity
+import br.ufes.inf.cityguiago.network.ApiClient
+import io.ktor.client.engine.android.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
+
+    private lateinit var listView: ListView
+    private lateinit var apiClient: ApiClient
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            MyApplicationTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    GreetingView(Greeting().greet())
-                }
+        setContentView(R.layout.activity_main)
+
+        listView = findViewById(R.id.attractionListView)
+        apiClient = ApiClient(Android.create())
+
+        loadAttractions()
+    }
+
+    private fun loadAttractions() {
+        launch {
+            val attractions = withContext(Dispatchers.IO) { apiClient.getAtracoes() }
+            if (attractions.isNotEmpty()) {
+                val adapter = ArrayAdapter(
+                    this@MainActivity,
+                    android.R.layout.simple_list_item_1,
+                    attractions.map { it.nome }
+                )
+                listView.adapter = adapter
+            } else {
+                // Show an error message or empty state
             }
         }
-    }
-}
-
-@Composable
-fun GreetingView(text: String) {
-    Text(text = text)
-}
-
-@Preview
-@Composable
-fun DefaultPreview() {
-    MyApplicationTheme {
-        GreetingView("Hello, Android!")
     }
 }
