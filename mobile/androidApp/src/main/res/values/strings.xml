@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">CityGuiaGo</string>
+    
+    <!-- Authentication -->
+    <string name="login">Login</string>
+    <string name="signup">Signup</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="name">Name</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="login_failed">Login failed</string>
+    <string name="signup_failed">Signup failed</string>
+    <string name="logout">Logout</string>
+    <string name="dont_have_account">Don\'t have an account?</string>
+    <string name="already_have_account">Already have an account?</string>
+    
+    <!-- Navigation -->
+    <string name="home">Home</string>
+    <string name="attractions">Attractions</string>
+    <string name="profile">Profile</string>
+    
+    <!-- Attractions -->
+    <string name="attraction_details">Attraction Details</string>
+    <string name="average_price">Average Price: %s</string>
+    <string name="business_hours">Business Hours: %s</string>
+    <string name="address">Address: %s</string>
+    <string name="reviews">Reviews</string>
+    <string name="no_reviews">No reviews yet. Be the first to review!</string>
+    
+    <!-- Reviews -->
+    <string name="rate_attraction">Rate this Attraction</string>
+    <string name="submit_review">Submit Review</string>
+    <string name="review_optional">Review (Optional)</string>
+    <string name="posted_by">Posted by %s</string>
+</resources> 
