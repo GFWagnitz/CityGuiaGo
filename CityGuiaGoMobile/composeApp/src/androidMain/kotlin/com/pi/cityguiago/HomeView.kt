@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,14 +28,19 @@ import com.pi.cityguiago.model.Attraction
 import com.pi.cityguiago.module.Login.LoginViewModel
 import com.pi.cityguiago.module.home.HomeState
 import com.pi.cityguiago.module.home.HomeViewModel
+import com.pi.cityguiago.network.PrefCacheManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun HomeView(
     navController: NavHostController,
+    store: PrefCacheManager,
     viewModel: HomeViewModel = koinViewModel()
 ) {
     val homeState by viewModel.state.collectAsState()
+    val scope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -44,14 +50,14 @@ fun HomeView(
     ) {
         when (homeState) {
             is ComponentState.Idle, ComponentState.Loading -> {
-                Header()
+                Header(scope, store)
             }
             is ComponentState.Error -> {
-                Header()
+                Header(scope, store)
             }
             is ComponentState.Loaded<*> -> {
                 ((homeState as ComponentState.Loaded<*>).data as HomeState).also { state ->
-                    Header()
+                    Header(scope, store)
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -75,7 +81,17 @@ fun HomeView(
 }
 
 @Composable
-fun Header() {
+fun Header(
+    scope: CoroutineScope,
+    store: PrefCacheManager
+) {
+    var savedValue by rememberSaveable { mutableStateOf("") }
+
+    LaunchedEffect(Unit) {
+        val user = store.getUser()
+        savedValue = user?.user?.nome ?: ""
+    }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -83,7 +99,7 @@ fun Header() {
             .padding(Metrics.Margins.large)
     ) {
         Column {
-            TextH1("Olá, Leo 👋", colorMode = ColorMode.Secondary)
+            TextH1("Olá, $savedValue 👋", colorMode = ColorMode.Secondary)
             TextBody1("Vamos explorar a Grande Vitória juntos!", colorMode = ColorMode.Secondary)
             VerticalSpacers.Massive()
         }

@@ -39,6 +39,9 @@ kotlin {
             implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.13") // JSON Support
             implementation("io.ktor:ktor-client-logging:2.3.13")// Logging
 
+            api(libs.datastore.preferences)
+            api(libs.datastore)
+
 
             api(libs.koin.core)
             implementation(libs.koin.compose)

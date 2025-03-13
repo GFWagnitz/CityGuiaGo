@@ -18,27 +18,37 @@ import com.pi.cityguiago.module.Login.LoginEvent
 import com.pi.cityguiago.module.Login.LoginViewModel
 import com.pi.cityguiago.designsystem.*
 import com.pi.cityguiago.designsystem.components.*
+import com.pi.cityguiago.network.PrefCacheManager
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun LoginView(
     navController: NavHostController,
+    store: PrefCacheManager,
     viewModel: LoginViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
     LaunchedEffect(viewModel) {
-        viewModel.effects.collect {
-            when (it) {
-                is LoginEffect.LoginSuccess -> navController.navigate("home")
+        viewModel.effects.collect { effect ->
+            when (effect) {
+                is LoginEffect.LoginSuccess -> {
+                    scope.launch {
+                        store.saveUser(effect.user)
+                        navController.navigate("home")
+                    }
+                }
                 is LoginEffect.ShowErrorMessage -> {
-                    Toast.makeText(context, it.errorMessage, Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, effect.errorMessage, Toast.LENGTH_LONG).show()
                 }
             }
         }
     }
+
 
     Column(
         modifier = Modifier

@@ -17,11 +17,13 @@ import com.pi.cityguiago.module.Register.RegisterViewModel
 import com.pi.cityguiago.designsystem.*
 import com.pi.cityguiago.designsystem.components.PrimaryButton
 import com.pi.cityguiago.designsystem.components.TextFieldWithTitle
+import com.pi.cityguiago.network.PrefCacheManager
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun RegisterView(
     navController: NavHostController,
+    store: PrefCacheManager,
     viewModel: RegisterViewModel = koinViewModel()
 ) {
     val context = LocalContext.current

@@ -26,6 +26,8 @@ kotlin {
 
             implementation(libs.koin.android)
             implementation(libs.koin.androidx.compose)
+            api(libs.datastore.preferences)
+            api(libs.datastore)
         }
         commonMain.dependencies {
             implementation(compose.runtime)

@@ -3,6 +3,7 @@ package com.pi.cityguiago.module.Login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pi.cityguiago.ComponentState
+import com.pi.cityguiago.model.AuthResponse
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,7 +32,7 @@ class LoginViewModel(
             val result = loginService.login(email, password)
 
             result.fold(
-                onSuccess = { _effects.trySend(LoginEffect.LoginSuccess) },
+                onSuccess = { _effects.trySend(LoginEffect.LoginSuccess(it)) },
                 onFailure = {
                     _effects.trySend(LoginEffect.ShowErrorMessage("Invalid credentials"))
                     ComponentState.Error("Invalid credentials")
@@ -43,7 +44,7 @@ class LoginViewModel(
 
 sealed class LoginEffect {
     data class ShowErrorMessage(val errorMessage: String?) : LoginEffect()
-    object LoginSuccess : LoginEffect()
+    data class LoginSuccess(val user: AuthResponse) : LoginEffect()
 }
 
 sealed class LoginEvent {
