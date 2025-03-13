@@ -23,31 +23,53 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.pi.cityguiago.designsystem.*
 import com.pi.cityguiago.designsystem.components.*
+import com.pi.cityguiago.model.Attraction
+import com.pi.cityguiago.module.Login.LoginViewModel
+import com.pi.cityguiago.module.home.HomeState
+import com.pi.cityguiago.module.home.HomeViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun HomeView(navController: NavHostController) {
+fun HomeView(
+    navController: NavHostController,
+    viewModel: HomeViewModel = koinViewModel()
+) {
+    val homeState by viewModel.state.collectAsState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Background)
             .verticalScroll(rememberScrollState())
     ) {
-        Header()
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = Metrics.Margins.large),
-            horizontalAlignment = Alignment.Start
-        ) {
-            VerticalSpacers.Large()
-            SearchSection(navController)
-            VerticalSpacers.Large()
-            BestAttractions()
-            VerticalSpacers.Large()
-            Attractions()
-            VerticalSpacers.Large()
-            Itineraries()
-            VerticalSpacers.Large()
+        when (homeState) {
+            is ComponentState.Idle, ComponentState.Loading -> {
+                Header()
+            }
+            is ComponentState.Error -> {
+                Header()
+            }
+            is ComponentState.Loaded<*> -> {
+                ((homeState as ComponentState.Loaded<*>).data as HomeState).also { state ->
+                    Header()
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = Metrics.Margins.large),
+                        horizontalAlignment = Alignment.Start
+                    ) {
+                        VerticalSpacers.Large()
+                        SearchSection(navController)
+                        VerticalSpacers.Large()
+                        topAttractions(state)
+                        VerticalSpacers.Large()
+                        Attractions(state)
+                        VerticalSpacers.Large()
+                        Itineraries()
+                        VerticalSpacers.Large()
+                    }
+                }
+            }
         }
     }
 }
@@ -104,7 +126,9 @@ fun SearchSection(navController: NavHostController) {
 }
 
 @Composable
-fun BestAttractions() {
+fun topAttractions(state: HomeState) {
+    if (state.firstAttraction == null) return
+
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -115,7 +139,8 @@ fun BestAttractions() {
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             BestAttractionCard(
-                title = "Convento da Penha",
+                title = state.firstAttraction?.nome,
+                number = 1,
                 modifier = Modifier
                     .weight(1f)
                     .height(200.dp)
@@ -131,14 +156,16 @@ fun BestAttractions() {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 BestAttractionCard(
-                    title = "Ponte da Ilha",
+                    title = state.secondAttraction?.nome,
+                    number = 2,
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxWidth()
                 )
 
                 BestAttractionCard(
-                    title = "terceira atração",
+                    title = state.thirdAttraction?.nome,
+                    number = 3,
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxWidth()
@@ -150,7 +177,8 @@ fun BestAttractions() {
 
 @Composable
 fun BestAttractionCard(
-    title: String,
+    title: String?,
+    number: Int,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -162,41 +190,36 @@ fun BestAttractionCard(
         Box(
             contentAlignment = Alignment.BottomStart
         ) {
-//            TextBody1(
-//                text = title,
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .padding(Metrics.Margins.default),
-//                textAlign = TextAlign.Start
-//            )
-
             Column(modifier = Modifier.padding(Metrics.Margins.default))
              {
-                 Row {
-                     Icon(
-                         imageVector = Icons.Filled.Star,
-                         contentDescription = "Rating Star",
-                         modifier = Modifier.size(Metrics.Margins.default)
-                     )
-                     HorizontalSpacers.Micro()
-                     TextH6("No 1", colorMode = ColorMode.Secondary)
+                 title?.let {
+                     Row {
+                             Icon(
+                                 imageVector = Icons.Filled.Star,
+                                 contentDescription = "Rating Star",
+                                 modifier = Modifier.size(Metrics.Margins.default)
+                             )
+                             HorizontalSpacers.Micro()
+                             TextH6("No $number", colorMode = ColorMode.Secondary)
+
+                     }
+                     VerticalSpacers.Small()
+                     TextH5(it, colorMode = ColorMode.Secondary)
                  }
-                VerticalSpacers.Small()
-                TextH5(title, colorMode = ColorMode.Secondary)
             }
         }
     }
 }
 
 @Composable
-fun Attractions() {
+fun Attractions(state: HomeState) {
     val tabTitles = listOf("Restaurantes", "Parques", "Praias", "Hoteis", "Passeios")
     val tabContents = listOf(
-        listOf("Restaurante A", "Restaurante B", "Restaurante C"),
-        listOf("Parque A", "Parque B", "Parque C"),
-        listOf("Praia A", "Praia B", "Praia C"),
-        listOf("Hotel A", "Hotel B", "Hotel C"),
-        listOf("Passeio A", "Passeio B", "Passeio C")
+        state.attractions.filter { it.categoria.id == "0" },
+        state.attractions.filter { it.categoria.id == "1" },
+        state.attractions.filter { it.categoria.id == "2" },
+        state.attractions.filter { it.categoria.id == "3" },
+        state.attractions.filter { it.categoria.id == "4" },
     )
 
     var selectedTabIndex by remember { mutableStateOf(0) }
@@ -252,9 +275,10 @@ fun Attractions() {
             ) {
                 items(items) { item ->
                     AttractionCard(
-                        title = item,
-                        rating = 1.0,
-                        location = "Centro",
+                        title = item.nome,
+                        description = item.descricao,
+                        rating = item.precoMedio ?: 0.0,
+                        location = item.enderecoCidade ?: "",
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -266,6 +290,7 @@ fun Attractions() {
 @Composable
 fun AttractionCard(
     title: String,
+    description: String,
     rating: Double,
     location: String,
     modifier: Modifier = Modifier
@@ -294,8 +319,8 @@ fun AttractionCard(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.Start
                 ) {
-                    TextH5(title)
-                    TextBody2("Some subtitle")
+                    TextH5(title, maxLines = 1)
+                    TextBody2(description, maxLines = 1)
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.padding(Metrics.Margins.micro)
@@ -314,7 +339,7 @@ fun AttractionCard(
                             modifier = Modifier.size(Metrics.Margins.default)
                         )
                         HorizontalSpacers.Micro()
-                        TextBody2(location)
+                        TextBody2(location, maxLines = 1)
                     }
                 }
             }

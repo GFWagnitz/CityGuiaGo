@@ -33,7 +33,7 @@ fun ExploreView(navController: NavHostController) {
             icon = Icons.Filled.Info
         )
         VerticalSpacers.Default()
-        Attractions()
+//        Attractions()
         VerticalSpacers.Large()
     }
 }
