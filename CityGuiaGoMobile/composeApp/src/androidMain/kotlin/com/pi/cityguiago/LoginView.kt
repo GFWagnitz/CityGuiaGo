@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavHostController
 import com.pi.cityguiago.module.Login.LoginEffect
 import com.pi.cityguiago.module.Login.LoginEvent
@@ -91,7 +92,7 @@ fun LoginView(
         PrimaryButton(
             text = "Entrar",
             onClick = { viewModel.onEvent(LoginEvent.Login(email, password)) },
-            icon = Icons.Default.ArrowForward
+            icon = painterResource(id = R.drawable.ic_arrow_right)
         )
 
         Spacer(modifier = Modifier.height(Metrics.Margins.small))

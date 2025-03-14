@@ -1,7 +1,9 @@
 package com.pi.cityguiago
 
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -12,9 +14,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.TabRowDefaults.tabIndicatorOffset
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -24,6 +23,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
@@ -154,7 +154,7 @@ fun SearchSection(
             onTextChanged = {
                 onEvent(HomeEvent.OpenExploreView(state.attractions))
             },
-            icon = Icons.Filled.Info
+            icon = painterResource(id = R.drawable.ic_search)
         )
 
         VerticalSpacers.Default()
@@ -171,8 +171,8 @@ fun SearchSection(
                 .padding(Metrics.Margins.default)
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(Metrics.Margins.small)) {
-                SecondaryButton(text = "Seus Favoritos", onClick = {})
-                SecondaryButton(text = "Seus Roteiros", onClick = {})
+                SecondaryButton(text = "Seus Favoritos", onClick = {}, icon = painterResource(id = R.drawable.ic_option))
+                SecondaryButton(text = "Seus Roteiros", onClick = {}, icon = painterResource(id = R.drawable.ic_option))
             }
         }
     }
@@ -270,10 +270,10 @@ fun topAttractionCard(
                 title?.let {
                     Row {
                         Icon(
-                            imageVector = Icons.Filled.Star,
+                            painter = painterResource(id = R.drawable.ic_crown),
                             contentDescription = "Rating Star",
                             modifier = Modifier.size(Metrics.Margins.default),
-                            tint = Color.White
+                            tint = Color.Unspecified
                         )
                         HorizontalSpacers.Micro()
                         TextH6("No $number", colorMode = ColorMode.Secondary)
@@ -413,17 +413,19 @@ fun AttractionCard(
                         modifier = Modifier.padding(Metrics.Margins.micro)
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.Star,
+                            painter = painterResource(id = R.drawable.ic_star),
                             contentDescription = "Rating Star",
-                            modifier = Modifier.size(Metrics.Margins.default)
+                            modifier = Modifier.size(Metrics.Margins.default),
+                            tint = Color.Unspecified
                         )
                         HorizontalSpacers.Micro()
                         TextBody2(String.format("%.1f", 1.0))
                         HorizontalSpacers.Micro()
                         Icon(
-                            imageVector = Icons.Filled.Star,
+                            painter = painterResource(id = R.drawable.ic_location),
                             contentDescription = "Location Star",
-                            modifier = Modifier.size(Metrics.Margins.default)
+                            modifier = Modifier.size(Metrics.Margins.default),
+                            tint = Color.Unspecified
                         )
                         HorizontalSpacers.Micro()
                         TextBody2(attraction.enderecoCidade ?: "", maxLines = 1)
@@ -467,7 +469,12 @@ fun Itineraries() {
 @Composable
 fun ItineraryCard(itinerary: Itinerary, modifier: Modifier = Modifier) {
     Card(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .border(
+                BorderStroke(1.dp, Gray),
+                RoundedCornerShape(Metrics.RoundCorners.default)
+            ),
         backgroundColor = White,
         shape = RoundedCornerShape(Metrics.RoundCorners.default),
         elevation = Metrics.Margins.nano

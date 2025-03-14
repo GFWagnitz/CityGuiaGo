@@ -5,11 +5,16 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.Scaffold
+import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavHostController
 import com.pi.cityguiago.designsystem.*
 import com.pi.cityguiago.designsystem.components.*
@@ -41,26 +46,39 @@ fun ExploreView(
             }
         }
     }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = Metrics.Margins.large)
-            .background(Background)
-            .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.Start
-        ) {
-        VerticalSpacers.Large()
-        SearchBar(
-            text = text,
-            placeholder = "Explore a Grande Vitória",
-            onTextChanged = { newText -> text = newText },
-            icon = Icons.Filled.Info
-        )
-        VerticalSpacers.Default()
-        Attractions(navController, attractions) {
-            viewModel.onEvent(ExploreEvent.OpenAttractionView)
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { TextH3("Atrações") },
+                backgroundColor = Background,
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
+                }
+            )
         }
-        VerticalSpacers.Large()
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Background)
+                .padding(horizontal = Metrics.Margins.large)
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.Start
+        ) {
+            VerticalSpacers.Large()
+            SearchBar(
+                text = text,
+                placeholder = "Explore a Grande Vitória",
+                onTextChanged = { newText -> text = newText },
+                icon = painterResource(id = R.drawable.ic_search)
+            )
+            VerticalSpacers.Default()
+            Attractions(navController, attractions) {
+                viewModel.onEvent(ExploreEvent.OpenAttractionView)
+            }
+            VerticalSpacers.Large()
+        }
     }
 }

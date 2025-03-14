@@ -4,15 +4,16 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.*
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.font.FontWeight
 import com.pi.cityguiago.designsystem.*
+import com.pi.cityguiago.R
 
 @Composable
 fun TextFieldWithTitle(
@@ -43,7 +44,7 @@ fun TextFieldWithTitle(
                 if (isPassword) {
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
                         Icon(
-                            imageVector = if (passwordVisible) Icons.Filled.Info else Icons.Filled.Star,
+                            painter = if (passwordVisible) painterResource(id = R.drawable.ic_eye_open) else painterResource(id = R.drawable.ic_eye_open),
                             contentDescription = if (passwordVisible) "Esconder senha" else "Mostrar senha",
                             tint = Gray
                         )

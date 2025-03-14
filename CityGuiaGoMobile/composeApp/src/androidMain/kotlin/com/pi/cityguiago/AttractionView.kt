@@ -22,8 +22,10 @@ import com.pi.cityguiago.designsystem.*
 import com.pi.cityguiago.designsystem.components.*
 import com.pi.cityguiago.model.Attraction
 import androidx.compose.material.*
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import coil.compose.AsyncImage
 import com.pi.cityguiago.model.Category
 import com.pi.cityguiago.model.Image
@@ -52,89 +54,108 @@ fun AttractionView(navController: NavHostController) {
         )
     )
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Background)
-            .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.Start
-    ) {
-        AsyncImage(
-            model = attraction.imagens.firstOrNull()?.caminho ?: "",
-            contentDescription = attraction.nome,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(16f / 9f)
-                .clip(RoundedCornerShape(bottomStart = Metrics.RoundCorners.large, bottomEnd = Metrics.RoundCorners.large))
-        )
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { TextH3(attraction.categoria.descricao) },
+                backgroundColor = Background,
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
+                }
+            )
+        }
+    ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = Metrics.Margins.large),
+                .background(Background)
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.Start
         ) {
-            VerticalSpacers.Large()
-
-            // Title + Star Icon
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                TextH1(attraction?.nome ?: "Atração")
-                Icon(imageVector = Icons.Filled.Star, contentDescription = "Favorite")
-            }
-
-            VerticalSpacers.Small()
-
-            // Description
-            TextBody1(attraction?.descricao ?: "")
-
-            VerticalSpacers.Default()
-
-            // Rating & Address
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(imageVector = Icons.Filled.Star, contentDescription = "Star Icon")
-                HorizontalSpacers.Small()
-                TextBody2("${attraction?.precoMedio ?: 0.0} ⭐")
-
-                HorizontalSpacers.Default()
-
-                TextBody2("(${attraction?.enderecoCidade ?: "Sem localização"})")
-            }
-
-            VerticalSpacers.Default()
-
-            // Tabs (Detalhes & Avaliações)
-            var selectedTab by remember { mutableStateOf(0) }
-            val tabs = listOf("Detalhes", "Avaliações")
-
-            ScrollableTabRow(
-                selectedTabIndex = selectedTab,
-                backgroundColor = Color.Transparent,
-                edgePadding = 0.dp,
-                indicator = { tabPositions ->
-                    TabRowDefaults.Indicator(
-                        modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
-                        color = Blue
+            AsyncImage(
+                model = attraction.imagens.firstOrNull()?.caminho ?: "",
+                contentDescription = attraction.nome,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(16f / 9f)
+                    .clip(
+                        RoundedCornerShape(
+                            bottomStart = Metrics.RoundCorners.large,
+                            bottomEnd = Metrics.RoundCorners.large
+                        )
                     )
+            )
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = Metrics.Margins.large),
+                horizontalAlignment = Alignment.Start
+            ) {
+                VerticalSpacers.Large()
+
+                // Title + Star Icon
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    TextH1(attraction?.nome ?: "Atração")
+                    Icon(imageVector = Icons.Filled.Star, contentDescription = "Favorite")
                 }
-            ) {
-                tabs.forEachIndexed { index, title ->
-                    Tab(
-                        selected = selectedTab == index,
-                        onClick = { selectedTab = index },
-                        text = {
-                            Text(
-                                text = title,
-                                color = if (selectedTab == index) Blue else Gray,
-                                style = MaterialTheme.typography.body2
-                            )
-                        }
-                    )
+
+                VerticalSpacers.Small()
+
+                // Description
+                TextBody1(attraction?.descricao ?: "")
+
+                VerticalSpacers.Default()
+
+                // Rating & Address
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(imageVector = Icons.Filled.Star, contentDescription = "Star Icon")
+                    HorizontalSpacers.Small()
+                    TextBody2("${attraction?.precoMedio ?: 0.0} ⭐")
+
+                    HorizontalSpacers.Default()
+
+                    TextBody2("(${attraction?.enderecoCidade ?: "Sem localização"})")
+                }
+
+                VerticalSpacers.Default()
+
+                // Tabs (Detalhes & Avaliações)
+                var selectedTab by remember { mutableStateOf(0) }
+                val tabs = listOf("Detalhes", "Avaliações")
+
+                ScrollableTabRow(
+                    selectedTabIndex = selectedTab,
+                    backgroundColor = Color.Transparent,
+                    edgePadding = 0.dp,
+                    indicator = { tabPositions ->
+                        TabRowDefaults.Indicator(
+                            modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
+                            color = Blue
+                        )
+                    }
+                ) {
+                    tabs.forEachIndexed { index, title ->
+                        Tab(
+                            selected = selectedTab == index,
+                            onClick = { selectedTab = index },
+                            text = {
+                                Text(
+                                    text = title,
+                                    color = if (selectedTab == index) Blue else Gray,
+                                    style = MaterialTheme.typography.body2
+                                )
+                            }
+                        )
+                    }
                 }
             }
         }

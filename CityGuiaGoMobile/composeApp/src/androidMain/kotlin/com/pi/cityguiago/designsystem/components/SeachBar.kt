@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.ui.graphics.painter.Painter
 import com.pi.cityguiago.designsystem.*
 
 @Composable
@@ -15,7 +16,7 @@ fun SearchBar(
     text: String,
     placeholder: String,
     onTextChanged: (String) -> Unit,
-    icon: ImageVector,
+    icon: Painter,
     modifier: Modifier = Modifier
 ) {
     OutlinedTextField(
@@ -25,7 +26,7 @@ fun SearchBar(
         modifier = modifier.fillMaxWidth(),
         placeholder = { Text(text = placeholder) },
         trailingIcon = {
-            Icon(imageVector = icon, contentDescription = "Trailing Icon", tint = Gray)
+            Icon(painter = icon, contentDescription = "Trailing Icon", tint = Gray)
         },
         colors = TextFieldDefaults.outlinedTextFieldColors(
             backgroundColor = White,

@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.pi.cityguiago.designsystem.*
 
@@ -15,7 +16,7 @@ fun SecondaryButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    icon: ImageVector? = null
+    icon: Painter? = null
 ) {
     Button(
         onClick = onClick,
@@ -30,7 +31,7 @@ fun SecondaryButton(
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (icon != null) {
-                Icon(imageVector = icon, contentDescription = text, tint = Blue)
+                Icon(painter = icon, contentDescription = text, tint = Blue)
                 Spacer(modifier = Modifier.width(Metrics.Margins.small))
             }
             Text(text = text, color = Blue)
