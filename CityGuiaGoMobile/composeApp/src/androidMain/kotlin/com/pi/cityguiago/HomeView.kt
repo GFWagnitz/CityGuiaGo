@@ -1,6 +1,8 @@
 package com.pi.cityguiago
 
+import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -20,15 +22,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import coil.compose.AsyncImage
 import com.pi.cityguiago.designsystem.*
 import com.pi.cityguiago.designsystem.components.*
 import com.pi.cityguiago.model.Attraction
-import com.pi.cityguiago.module.Login.LoginViewModel
+import com.pi.cityguiago.module.Login.LoginEffect
+import com.pi.cityguiago.module.home.HomeEffect
+import com.pi.cityguiago.module.home.HomeEvent
 import com.pi.cityguiago.module.home.HomeState
 import com.pi.cityguiago.module.home.HomeViewModel
 import com.pi.cityguiago.network.PrefCacheManager
+import io.ktor.http.ContentType.Application.Json
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -39,8 +47,29 @@ fun HomeView(
     store: PrefCacheManager,
     viewModel: HomeViewModel = koinViewModel()
 ) {
+    val context = LocalContext.current
     val homeState by viewModel.state.collectAsState()
     val scope = rememberCoroutineScope()
+
+    LaunchedEffect(viewModel) {
+        viewModel.effects.collect { effect ->
+            when (effect) {
+                is HomeEffect.OpenAttractionView -> {
+                    navController.navigate("attraction")
+                }
+                is HomeEffect.OpenExploreView -> {
+                    navController.currentBackStackEntry?.savedStateHandle?.set(
+                        key = "attractions",
+                        value = effect.attractions
+                    )
+                    navController.navigate("explore")
+                }
+                is HomeEffect.ShowErrorMessage -> {
+                    Toast.makeText(context, effect.errorMessage, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -65,11 +94,13 @@ fun HomeView(
                         horizontalAlignment = Alignment.Start
                     ) {
                         VerticalSpacers.Large()
-                        SearchSection(navController)
+                        SearchSection(navController, state, viewModel::onEvent)
                         VerticalSpacers.Large()
                         topAttractions(state)
                         VerticalSpacers.Large()
-                        Attractions(state)
+                        Attractions(navController, state.attractions) {
+                            viewModel.onEvent(HomeEvent.OpenAttractionView)
+                        }
                         VerticalSpacers.Large()
                         Itineraries()
                         VerticalSpacers.Large()
@@ -107,7 +138,11 @@ fun Header(
 }
 
 @Composable
-fun SearchSection(navController: NavHostController) {
+fun SearchSection(
+    navController: NavHostController,
+    state: HomeState,
+    onEvent: (HomeEvent) -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth(),
@@ -116,7 +151,9 @@ fun SearchSection(navController: NavHostController) {
         SearchBar(
             text = "",
             placeholder = "Explore a Grande Vitória",
-            onTextChanged = { navController.navigate("explore") },
+            onTextChanged = {
+                onEvent(HomeEvent.OpenExploreView(state.attractions))
+            },
             icon = Icons.Filled.Info
         )
 
@@ -154,8 +191,9 @@ fun topAttractions(state: HomeState) {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            BestAttractionCard(
+            topAttractionCard(
                 title = state.firstAttraction?.nome,
+                imageUrl = state.firstAttraction?.imagens?.first()?.caminho,
                 number = 1,
                 modifier = Modifier
                     .weight(1f)
@@ -171,16 +209,18 @@ fun topAttractions(state: HomeState) {
                 verticalArrangement = Arrangement.spacedBy(Metrics.Margins.default),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                BestAttractionCard(
+                topAttractionCard(
                     title = state.secondAttraction?.nome,
+                    imageUrl = state.secondAttraction?.imagens?.first()?.caminho,
                     number = 2,
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxWidth()
                 )
 
-                BestAttractionCard(
+                topAttractionCard(
                     title = state.thirdAttraction?.nome,
+                    imageUrl = state.thirdAttraction?.imagens?.first()?.caminho,
                     number = 3,
                     modifier = Modifier
                         .weight(1f)
@@ -192,8 +232,9 @@ fun topAttractions(state: HomeState) {
 }
 
 @Composable
-fun BestAttractionCard(
+fun topAttractionCard(
     title: String?,
+    imageUrl: String?,
     number: Int,
     modifier: Modifier = Modifier
 ) {
@@ -204,38 +245,60 @@ fun BestAttractionCard(
         elevation = Metrics.Margins.nano
     ) {
         Box(
+            modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.BottomStart
         ) {
-            Column(modifier = Modifier.padding(Metrics.Margins.default))
-             {
-                 title?.let {
-                     Row {
-                             Icon(
-                                 imageVector = Icons.Filled.Star,
-                                 contentDescription = "Rating Star",
-                                 modifier = Modifier.size(Metrics.Margins.default)
-                             )
-                             HorizontalSpacers.Micro()
-                             TextH6("No $number", colorMode = ColorMode.Secondary)
+            AsyncImage(
+                model = imageUrl ?: "",
+                contentDescription = title ?: "Attraction Image",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxSize()
+            )
 
-                     }
-                     VerticalSpacers.Small()
-                     TextH5(it, colorMode = ColorMode.Secondary)
-                 }
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.3f))
+            )
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(Metrics.Margins.default)
+            ) {
+                title?.let {
+                    Row {
+                        Icon(
+                            imageVector = Icons.Filled.Star,
+                            contentDescription = "Rating Star",
+                            modifier = Modifier.size(Metrics.Margins.default),
+                            tint = Color.White
+                        )
+                        HorizontalSpacers.Micro()
+                        TextH6("No $number", colorMode = ColorMode.Secondary)
+                    }
+                    VerticalSpacers.Small()
+                    TextH5(it, colorMode = ColorMode.Secondary, modifier = Modifier.fillMaxWidth())
+                }
             }
         }
     }
 }
 
 @Composable
-fun Attractions(state: HomeState) {
+fun Attractions(
+    navController: NavHostController,
+    attractions: List<Attraction>,
+    onClick: (attractionId: Attraction) -> Unit
+) {
     val tabTitles = listOf("Restaurantes", "Parques", "Praias", "Hoteis", "Passeios")
     val tabContents = listOf(
-        state.attractions.filter { it.categoria.id == "0" },
-        state.attractions.filter { it.categoria.id == "1" },
-        state.attractions.filter { it.categoria.id == "2" },
-        state.attractions.filter { it.categoria.id == "3" },
-        state.attractions.filter { it.categoria.id == "4" },
+        attractions.filter { it.categoria.id == "0" },
+        attractions.filter { it.categoria.id == "1" },
+        attractions.filter { it.categoria.id == "2" },
+        attractions.filter { it.categoria.id == "3" },
+        attractions.filter { it.categoria.id == "4" },
     )
 
     var selectedTabIndex by remember { mutableStateOf(0) }
@@ -291,11 +354,11 @@ fun Attractions(state: HomeState) {
             ) {
                 items(items) { item ->
                     AttractionCard(
-                        title = item.nome,
-                        description = item.descricao,
-                        rating = item.precoMedio ?: 0.0,
-                        location = item.enderecoCidade ?: "",
-                        modifier = Modifier.fillMaxWidth()
+                        item,
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = {
+                            onClick(item)
+                        }
                     )
                 }
             }
@@ -305,14 +368,14 @@ fun Attractions(state: HomeState) {
 
 @Composable
 fun AttractionCard(
-    title: String,
-    description: String,
-    rating: Double,
-    location: String,
-    modifier: Modifier = Modifier
+    attraction: Attraction,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
 ) {
     Card(
-        modifier = modifier.height(184.dp),
+        modifier = modifier
+            .height(184.dp)
+            .clickable { onClick() },
         shape = RoundedCornerShape(Metrics.RoundCorners.default),
         elevation = Metrics.Margins.nano
     ) {
@@ -322,7 +385,15 @@ fun AttractionCard(
                     .fillMaxWidth()
                     .weight(1f)
                     .background(Gray)
-            )
+            ) {
+                AsyncImage(
+                    model = attraction.imagens.firstOrNull()?.caminho ?: "",
+                    contentDescription = attraction?.nome,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                )
+            }
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -335,8 +406,8 @@ fun AttractionCard(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.Start
                 ) {
-                    TextH5(title, maxLines = 1)
-                    TextBody2(description, maxLines = 1)
+                    TextH5(attraction.nome, maxLines = 1)
+                    TextBody2(attraction.descricao, maxLines = 1)
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.padding(Metrics.Margins.micro)
@@ -347,7 +418,7 @@ fun AttractionCard(
                             modifier = Modifier.size(Metrics.Margins.default)
                         )
                         HorizontalSpacers.Micro()
-                        TextBody2(String.format("%.1f", rating))
+                        TextBody2(String.format("%.1f", 1.0))
                         HorizontalSpacers.Micro()
                         Icon(
                             imageVector = Icons.Filled.Star,
@@ -355,7 +426,7 @@ fun AttractionCard(
                             modifier = Modifier.size(Metrics.Margins.default)
                         )
                         HorizontalSpacers.Micro()
-                        TextBody2(location, maxLines = 1)
+                        TextBody2(attraction.enderecoCidade ?: "", maxLines = 1)
                     }
                 }
             }

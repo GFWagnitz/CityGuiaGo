@@ -90,7 +90,6 @@ fun LoginView(
 
         PrimaryButton(
             text = "Entrar",
-//            onClick = { navController.navigate("home") },
             onClick = { viewModel.onEvent(LoginEvent.Login(email, password)) },
             icon = Icons.Default.ArrowForward
         )

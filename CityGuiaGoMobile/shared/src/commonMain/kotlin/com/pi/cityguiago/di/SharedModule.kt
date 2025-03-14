@@ -4,6 +4,7 @@ import com.pi.cityguiago.module.Login.LoginService
 import com.pi.cityguiago.module.Login.LoginViewModel
 import com.pi.cityguiago.module.Register.RegisterService
 import com.pi.cityguiago.module.Register.RegisterViewModel
+import com.pi.cityguiago.module.home.ExploreViewModel
 import com.pi.cityguiago.module.home.HomeService
 import com.pi.cityguiago.module.home.HomeViewModel
 import com.pi.cityguiago.network.ApiClient
@@ -19,4 +20,5 @@ fun sharedModule(engine: HttpClientEngine): Module = module {
     single { LoginViewModel(get()) }
     single { HomeService(get()) }
     single { HomeViewModel(get()) }
+    single { ExploreViewModel() }
 } 

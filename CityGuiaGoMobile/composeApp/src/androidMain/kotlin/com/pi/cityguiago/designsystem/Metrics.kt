@@ -17,5 +17,6 @@ object Metrics {
 
     object RoundCorners {
         val default = 12.dp
+        val large = 32.dp
     }
 }

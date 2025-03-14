@@ -37,7 +37,7 @@ class HomeService(private val apiClient: ApiClient) {
             enderecoCep = "01000-000",
             enderecoCoordenadas = "-23.5505, -46.6333",
             imagens = listOf(
-                Image(id = "1", caminho = "https://example.com/image1.jpg"),
+                Image(id = "1", caminho = "https://static.vecteezy.com/ti/fotos-gratis/t2/41436456-ai-gerado-cinematografico-imagem-do-uma-leao-dentro-uma-natureza-panorama-foto.jpg"),
                 Image(id = "2", caminho = "https://example.com/image2.jpg")
             )
         ),
@@ -57,7 +57,7 @@ class HomeService(private val apiClient: ApiClient) {
             enderecoCep = "01310-000",
             enderecoCoordenadas = "-23.5631, -46.6562",
             imagens = listOf(
-                Image(id = "3", caminho = "https://example.com/image3.jpg"),
+                Image(id = "3", caminho = "https://static.vecteezy.com/ti/fotos-gratis/t2/41436456-ai-gerado-cinematografico-imagem-do-uma-leao-dentro-uma-natureza-panorama-foto.jpg"),
                 Image(id = "4", caminho = "https://example.com/image4.jpg")
             )
         )

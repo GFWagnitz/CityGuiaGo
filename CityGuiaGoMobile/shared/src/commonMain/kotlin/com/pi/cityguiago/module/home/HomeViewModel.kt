@@ -26,6 +26,8 @@ class HomeViewModel(
     fun onEvent(event: HomeEvent) {
         when (event) {
             is HomeEvent.LoadData -> loadData()
+            is HomeEvent.OpenAttractionView -> openAttractionView()
+            is HomeEvent.OpenExploreView -> openExploreView(event.attractions)
         }
     }
 
@@ -45,7 +47,7 @@ class HomeViewModel(
         }
     }
 
-    fun produceHomeState(attractions: List<Attraction>): HomeState {
+    private fun produceHomeState(attractions: List<Attraction>): HomeState {
         return HomeState(
             attractions = attractions,
             firstAttraction = attractions.getOrNull(0),
@@ -53,13 +55,24 @@ class HomeViewModel(
             thirdAttraction = attractions.getOrNull(2)
         )
     }
+
+    private fun openAttractionView() {
+        _effects.trySend(HomeEffect.OpenAttractionView)
+    }
+
+    private fun openExploreView(attractions: List<Attraction>) {
+        _effects.trySend(HomeEffect.OpenExploreView(attractions))
+    }
 }
 
 sealed class HomeEffect {
     data class ShowErrorMessage(val errorMessage: String?) : HomeEffect()
-//    object LoginSuccess : HomeEffect()
+    object OpenAttractionView : HomeEffect()
+    data class OpenExploreView(val attractions: List<Attraction>) : HomeEffect()
 }
 
 sealed class HomeEvent {
     object LoadData : HomeEvent()
+    object OpenAttractionView : HomeEvent()
+    data class OpenExploreView(val attractions: List<Attraction>) : HomeEvent()
 }

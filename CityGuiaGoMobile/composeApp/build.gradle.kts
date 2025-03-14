@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    kotlin("plugin.serialization") version "2.1.10"
 }
 
 kotlin {
@@ -23,6 +24,7 @@ kotlin {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
             implementation("io.ktor:ktor-client-android:2.3.8")
+            implementation("io.coil-kt:coil-compose:2.2.2")
 
             implementation(libs.koin.android)
             implementation(libs.koin.androidx.compose)
@@ -40,6 +42,9 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtime.compose)
             implementation(projects.shared)
             implementation(libs.kotlinx.coroutines.android)
+            implementation("io.ktor:ktor-client-serialization:2.3.13") // JSON Serialization
+            implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.13") // JSON Support
+            implementation(libs.ktor.serialization.kotlinx.json)
         }
     }
 }
