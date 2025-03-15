@@ -4,7 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pi.cityguiago.ComponentState
 import com.pi.cityguiago.model.Attraction
+import com.pi.cityguiago.model.Itinerary
+import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -26,8 +29,11 @@ class HomeViewModel(
     fun onEvent(event: HomeEvent) {
         when (event) {
             is HomeEvent.LoadData -> loadData()
-            is HomeEvent.OpenAttractionView -> openAttractionView()
-            is HomeEvent.OpenExploreView -> openExploreView(event.attractions)
+            is HomeEvent.OnAttractionClick -> openAttractionView()
+            is HomeEvent.OnItineraryClick -> TODO()
+            is HomeEvent.OnSeachBarClick -> openExploreView(event.attractions)
+            is HomeEvent.OnFavoriteButtonClick -> TODO()
+            is HomeEvent.OnItineraryListButtonClick -> TODO()
         }
     }
 
@@ -35,24 +41,47 @@ class HomeViewModel(
         viewModelScope.launch {
             _state.value = ComponentState.Loading
 
-            val result = homeService.getAttractions()
+            try {
+                coroutineScope {
+                    val attractionsDeferred = async { homeService.getAttractions() }
+                    val itinerariesDeferred = async { homeService.getItineraries() }
 
-            result.fold(
-                onSuccess = { _state.value = ComponentState.Loaded(produceHomeState(it)) },
-                onFailure = {
-                    _effects.trySend(HomeEffect.ShowErrorMessage("Request Error"))
-                    ComponentState.Error("Request Error")
+                    val attractionsResult = attractionsDeferred.await()
+                    val itinerariesResult = itinerariesDeferred.await()
+
+                    val attractions = attractionsResult.getOrElse { emptyList() }
+                    val itineraries = itinerariesResult.getOrElse { emptyList() }
+
+                    _state.value = ComponentState.Loaded(
+                        produceHomeState(attractions, itineraries)
+                    )
                 }
-            )
+            } catch (e: Exception) {
+                _effects.trySend(HomeEffect.ShowErrorMessage("Request Error"))
+                _state.value = ComponentState.Error("Request Error")
+            }
         }
     }
 
-    private fun produceHomeState(attractions: List<Attraction>): HomeState {
+    private fun produceHomeState(
+        attractions: List<Attraction>,
+        itineraries: List<Itinerary>
+    ): HomeState {
+        val categorizedAttractions = attractions
+            .groupBy { it.categoria.descricao }
+            .map { (category, attractions) ->
+                CategoryAttraction(
+                    categoria = category,
+                    attractions = attractions
+                )
+            }
+
         return HomeState(
-            attractions = attractions,
+            attractions = categorizedAttractions,
             firstAttraction = attractions.getOrNull(0),
             secondAttraction = attractions.getOrNull(1),
-            thirdAttraction = attractions.getOrNull(2)
+            thirdAttraction = attractions.getOrNull(2),
+            itineraries = itineraries
         )
     }
 
@@ -60,7 +89,7 @@ class HomeViewModel(
         _effects.trySend(HomeEffect.OpenAttractionView)
     }
 
-    private fun openExploreView(attractions: List<Attraction>) {
+    private fun openExploreView(attractions: List<CategoryAttraction>) {
         _effects.trySend(HomeEffect.OpenExploreView(attractions))
     }
 }
@@ -68,11 +97,14 @@ class HomeViewModel(
 sealed class HomeEffect {
     data class ShowErrorMessage(val errorMessage: String?) : HomeEffect()
     object OpenAttractionView : HomeEffect()
-    data class OpenExploreView(val attractions: List<Attraction>) : HomeEffect()
+    data class OpenExploreView(val attractions: List<CategoryAttraction>) : HomeEffect()
 }
 
 sealed class HomeEvent {
     object LoadData : HomeEvent()
-    object OpenAttractionView : HomeEvent()
-    data class OpenExploreView(val attractions: List<Attraction>) : HomeEvent()
+    object OnAttractionClick : HomeEvent()
+    object OnItineraryClick : HomeEvent()
+    object OnFavoriteButtonClick : HomeEvent()
+    object OnItineraryListButtonClick : HomeEvent()
+    data class OnSeachBarClick(val attractions: List<CategoryAttraction>) : HomeEvent()
 }

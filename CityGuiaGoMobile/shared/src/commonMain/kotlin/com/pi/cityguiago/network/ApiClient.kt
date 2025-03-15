@@ -16,10 +16,11 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonNamingStrategy
 
 class ApiClient(engine: HttpClientEngine) {
 
-    private var authToken: String? = null
+    var authToken: String? = null
 
     val client = HttpClient(engine) {
         install(HttpTimeout) {
@@ -32,6 +33,7 @@ class ApiClient(engine: HttpClientEngine) {
                 ignoreUnknownKeys = true
                 coerceInputValues = true
                 prettyPrint = true
+                namingStrategy = JsonNamingStrategy.SnakeCase
             })
         }
         install(Auth) {
@@ -39,34 +41,50 @@ class ApiClient(engine: HttpClientEngine) {
                 loadTokens {
                     authToken?.let { BearerTokens(it, it) }
                 }
+                refreshTokens {
+                    authToken?.let { BearerTokens(it, it) }
+                }
             }
         }
         install(Logging) {
-            logger = Logger.DEFAULT
-            level = LogLevel.ALL
+            logger = Logger.SIMPLE
+            level = LogLevel.BODY
         }
     }
 
     suspend inline fun <reified T> get(url: String, headers: Map<String, String> = emptyMap()): T {
-        return client.get(url) {
+        val response = client.get(url) {
+            authToken?.let { header(HttpHeaders.Authorization, "Bearer $it") }
             headers.forEach { (key, value) -> header(key, value) }
-        }.body<T>()
+        }
+
+        val responseBody = response.body<T>()
+        println("API Response: $responseBody")
+
+        return responseBody
     }
 
     suspend inline fun <reified T> post(url: String, body: Any, headers: Map<String, String> = emptyMap()): T {
-        return client.post(url) {
+        val response = client.post(url) {
             contentType(ContentType.Application.Json)
+            authToken?.let { header(HttpHeaders.Authorization, "Bearer $it") }
             headers.forEach { (key, value) -> header(key, value) }
             setBody(body)
         }.body<T>()
+
+        println("API Response: $response")
+        return response
     }
 
     suspend inline fun <reified T> put(url: String, body: Any, headers: Map<String, String> = emptyMap()): T {
-        return client.put(url) {
+        val response = client.put(url) {
             contentType(ContentType.Application.Json)
             headers.forEach { (key, value) -> header(key, value) }
             setBody(body)
         }.body<T>()
+
+        println("API Response: $response")
+        return response
     }
 
     suspend fun delete(url: String, headers: Map<String, String> = emptyMap()): HttpResponse {

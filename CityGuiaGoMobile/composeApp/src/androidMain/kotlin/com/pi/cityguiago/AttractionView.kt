@@ -33,7 +33,8 @@ import com.pi.cityguiago.model.Category
 import com.pi.cityguiago.model.Image
 
 @Composable
-fun AttractionView(navController: NavHostController) {
+fun AttractionView(navController: NavHostController,
+                   attractionId: String) {
 
     val attraction = Attraction(
         id = "1",
@@ -84,7 +85,7 @@ fun AttractionView(navController: NavHostController) {
             ) {
                 VerticalSpacers.Large()
 
-                Header(attraction)
+                Header(attraction, navController)
 
                 VerticalSpacers.Default()
 
@@ -147,16 +148,20 @@ fun ImageHeader(imageUrl: String) {
 }
 
 @Composable
-fun Header(attraction: Attraction) {
+fun Header(attraction: Attraction, navController: NavHostController) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
     TextH1(attraction?.nome ?: "Atração")
-    Icon(painter = painterResource(id = R.drawable.ic_alert),
-        contentDescription = "Favorite",
-        tint = Color.Unspecified)
+        IconButton(onClick = { navController.navigate("Complaint") }) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_alert),
+                contentDescription = "Favorite",
+                tint = Color.Unspecified
+            )
+        }
     }
 
     VerticalSpacers.Small()
@@ -221,11 +226,15 @@ fun ItinerarySection() {
         Column(verticalArrangement = Arrangement.spacedBy(Metrics.Margins.small)) {
             TextH2("Adicionar ao Roteiro")
             VerticalSpacers.Small()
-            SearchBar(
-                text = "",
-                placeholder = "Escolha um roteiro",
-                onTextChanged = {},
-                icon = painterResource(id = R.drawable.ic_search)
+
+            val optionsList = listOf("Option 1", "Option 2", "Option 3")
+            var selectedOption by remember { mutableStateOf<String?>(null) }
+
+            OutlinedDropdownMenu(
+                options = optionsList,
+                selectedOption = selectedOption,
+                onOptionSelected = { selectedOption = it },
+                placeholder = "Choose an option"
             )
             VerticalSpacers.Small()
             PrimaryButton(text = "Adicionar", onClick = {})

@@ -9,7 +9,8 @@ class RegisterService(private val apiClient: ApiClient) {
         return try {
             val result: AuthResponse = apiClient.post(
                 "https://cityguiago.com/api/auth/register/",
-                SignupRequest(name, email, password)
+                SignupRequest(name, email, password),
+
             )
             Result.success(result)
         } catch (e: Exception) {

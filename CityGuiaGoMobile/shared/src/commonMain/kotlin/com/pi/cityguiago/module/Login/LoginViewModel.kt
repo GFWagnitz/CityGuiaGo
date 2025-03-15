@@ -26,6 +26,11 @@ class LoginViewModel(
     }
 
     fun login(email: String, password: String) {
+        if (!checkLoginData(email, password)) {
+            _effects.trySend(LoginEffect.ShowErrorMessage("Missing Email or Password"))
+            return
+        }
+
         viewModelScope.launch {
             _state.value = ComponentState.Loading
 
@@ -39,6 +44,10 @@ class LoginViewModel(
                 }
             )
         }
+    }
+
+    private fun checkLoginData(email: String, password: String): Boolean {
+        return email.isNotEmpty() && password.isNotEmpty()
     }
 }
 
