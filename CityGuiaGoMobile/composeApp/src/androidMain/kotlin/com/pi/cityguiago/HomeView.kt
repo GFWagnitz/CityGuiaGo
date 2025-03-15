@@ -438,15 +438,16 @@ fun AttractionCard(
 
 data class Itinerary(
     val name: String,
-    val duration: String
+    val duration: String,
+    val imageUrl: String
 )
 
 @Composable
 fun Itineraries() {
     val itineraries = listOf(
-        Itinerary("Roteiro A", "2h 30m"),
-        Itinerary("Roteiro B", "3h 15m"),
-        Itinerary("Roteiro C", "1h 45m")
+        Itinerary("Roteiro A", "2h 30m", "https://static.vecteezy.com/ti/fotos-gratis/t2/41436456-ai-gerado-cinematografico-imagem-do-uma-leao-dentro-uma-natureza-panorama-foto.jpg"),
+        Itinerary("Roteiro B", "3h 15m", "https://static.vecteezy.com/ti/fotos-gratis/t2/41436456-ai-gerado-cinematografico-imagem-do-uma-leao-dentro-uma-natureza-panorama-foto.jpg"),
+        Itinerary("Roteiro C", "1h 45m", "https://static.vecteezy.com/ti/fotos-gratis/t2/41436456-ai-gerado-cinematografico-imagem-do-uma-leao-dentro-uma-natureza-panorama-foto.jpg")
     )
 
     Column(
@@ -483,11 +484,15 @@ fun ItineraryCard(itinerary: Itinerary, modifier: Modifier = Modifier) {
             modifier = Modifier.padding(Metrics.Margins.default),
             verticalAlignment = Alignment.Top
         ) {
-            Box(
+            AsyncImage(
+                model = itinerary.imageUrl,
+                contentDescription = itinerary.name,
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(64.dp)
                     .clip(RoundedCornerShape(Metrics.RoundCorners.default))
                     .background(Gray)
+                    .fillMaxWidth()
             )
             HorizontalSpacers.Small()
             Column {
