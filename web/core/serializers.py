@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Usuarios, Categorias, Atracoes, Roteiros, Avaliacoes, Ofertas, Denuncias, Imagens
+from .models import User, Categorias, Atracoes, Roteiros, Avaliacoes, Ofertas, Denuncias, Imagens
 
 class ImagensSerializer(serializers.ModelSerializer):
     class Meta:
@@ -7,13 +7,18 @@ class ImagensSerializer(serializers.ModelSerializer):
         fields = ['id', 'caminho', 'atracao', 'user', 'created_at']  # Include all fields
         read_only_fields = ['id', 'created_at']
 
-class UsuariosSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     imagens = ImagensSerializer(many=True, read_only=True) # Nested serializer, read-only
 
     class Meta:
-        model = Usuarios
-        fields = ['id', 'nome', 'email', 'created_at', 'avatar', 'imagens']  # Include all fields
+        model = User
+        fields = ['id', 'username', 'email', 'nome', 'created_at', 'avatar', 'imagens']  # Include all fields
         read_only_fields = ['id', 'created_at']
+        extra_kwargs = {'password': {'write_only': True}}
+        
+    def create(self, validated_data):
+        user = User.objects.create_user(**validated_data)
+        return user
 
 class CategoriasSerializer(serializers.ModelSerializer):
     subcategorias = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
@@ -34,7 +39,7 @@ class AtracoesSerializer(serializers.ModelSerializer):
 
 
 class RoteirosSerializer(serializers.ModelSerializer):
-    user = UsuariosSerializer(read_only=True)  # Show user details
+    user = UserSerializer(read_only=True)  # Show user details
     categoria = CategoriasSerializer(read_only=True) # Show category details
     class Meta:
         model = Roteiros
@@ -42,7 +47,7 @@ class RoteirosSerializer(serializers.ModelSerializer):
         read_only_fields = [field.name for field in Roteiros._meta.fields]
 
 class AvaliacoesSerializer(serializers.ModelSerializer):
-    user = UsuariosSerializer(read_only=True)
+    user = UserSerializer(read_only=True)
     atracao = AtracoesSerializer(read_only=True)  # Show attraction details
     roteiro = RoteirosSerializer(read_only=True) #Show roteiro details.
     class Meta:
@@ -58,7 +63,7 @@ class OfertasSerializer(serializers.ModelSerializer):
         read_only_fields = [field.name for field in Ofertas._meta.fields]
 
 class DenunciasSerializer(serializers.ModelSerializer):
-    user = UsuariosSerializer(read_only=True)
+    user = UserSerializer(read_only=True)
     atracao = AtracoesSerializer(read_only=True)
     roteiro = RoteirosSerializer(read_only=True)
     oferta = OfertasSerializer(read_only=True)

@@ -25,8 +25,8 @@ SECRET_KEY = 'django-insecure-k7c!3_slob#!zms#jn^pu&8v$pu17f2ovp5-3-)&1do3esoj&%
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['cityguiago.com']
-CSRF_TRUSTED_ORIGINS = ['https://cityguiago.com']
+ALLOWED_HOSTS = ['cityguiago.com', 'localhost', '127.0.0.1']
+CSRF_TRUSTED_ORIGINS = ['https://cityguiago.com', 'http://localhost', 'http://127.0.0.1']
 
 
 # Application definition
@@ -80,7 +80,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': '/data/db.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
@@ -125,6 +125,9 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Configure the custom user model
+AUTH_USER_MODEL = 'core.User'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [

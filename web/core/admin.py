@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Usuarios, Categorias, Atracoes, Roteiros, Avaliacoes, Ofertas, Denuncias, Imagens
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from .models import User, Categorias, Atracoes, Roteiros, Avaliacoes, Ofertas, Denuncias, Imagens
 
 # Inline models for nested representation in the admin
 
@@ -17,12 +18,24 @@ class AvaliacoesInline(admin.TabularInline):
     model = Avaliacoes
     extra = 1
 
-@admin.register(Usuarios)
-class UsuariosAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'email', 'created_at')  # Fields to display in the list view
-    search_fields = ('nome', 'email')  # Enable searching by name and email
-    list_filter = ('created_at',)  # Add a filter for creation date
+@admin.register(User)
+class UserAdmin(BaseUserAdmin):
+    list_display = ('username', 'email', 'nome', 'created_at', 'is_staff')
+    search_fields = ('username', 'email', 'nome')
+    list_filter = ('created_at', 'is_staff', 'is_superuser')
     inlines = [ImagensInline]
+    fieldsets = (
+        (None, {'fields': ('username', 'password')}),
+        ('Personal info', {'fields': ('nome', 'email', 'avatar')}),
+        ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
+        ('Important dates', {'fields': ('created_at', 'last_login', 'date_joined')}),
+    )
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('username', 'email', 'nome', 'password1', 'password2'),
+        }),
+    )
 
 @admin.register(Categorias)
 class CategoriasAdmin(admin.ModelAdmin):

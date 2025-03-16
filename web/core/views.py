@@ -1,12 +1,12 @@
 from rest_framework import generics
-from .models import Usuarios, Categorias, Atracoes, Roteiros, Avaliacoes, Ofertas, Denuncias, Imagens
-from .serializers import (UsuariosSerializer, CategoriasSerializer, AtracoesSerializer,
+from .models import User, Categorias, Atracoes, Roteiros, Avaliacoes, Ofertas, Denuncias, Imagens
+from .serializers import (UserSerializer, CategoriasSerializer, AtracoesSerializer,
                           RoteirosSerializer, AvaliacoesSerializer, OfertasSerializer,
                           DenunciasSerializer, ImagensSerializer)
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
 class UsuarioSelf(generics.RetrieveAPIView):
-    serializer_class = UsuariosSerializer
+    serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]  
 
     def get_object(self):
