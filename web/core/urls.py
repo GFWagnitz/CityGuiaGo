@@ -17,6 +17,10 @@ urlpatterns = [
 
     path('roteiros/', views.RoteiroList.as_view(), name='roteiro-list'),
     path('roteiros/<uuid:id>/', views.RoteiroDetail.as_view(), name='roteiro-detail'),
+    
+    # Roteiro-Atracao relationship endpoints
+    path('roteiros/<uuid:roteiro_id>/atracoes/', views.RoteiroAtracaoList.as_view(), name='roteiro-atracao-list'),
+    path('roteiros/<uuid:roteiro_id>/atracoes/<uuid:id>/', views.RoteiroAtracaoDetail.as_view(), name='roteiro-atracao-detail'),
 
     path('avaliacoes/', views.AvaliacaoList.as_view(), name='avaliacao-list'),
     path('avaliacoes/<uuid:id>/', views.AvaliacaoDetail.as_view(), name='avaliacao-detail'),

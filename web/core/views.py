@@ -1,13 +1,17 @@
 from rest_framework import generics, status
-from .models import User, Categorias, Atracoes, Roteiros, Avaliacoes, Ofertas, Denuncias, Imagens
+from .models import User, Categorias, Atracoes, Roteiros, Avaliacoes, Ofertas, Denuncias, Imagens, RoteiroAtracao
 from .serializers import (UserSerializer, LoginSerializer, CategoriasSerializer, AtracoesSerializer,
                           RoteirosSerializer, AvaliacoesSerializer, OfertasSerializer,
-                          DenunciasSerializer, ImagensSerializer)
+                          DenunciasSerializer, ImagensSerializer, RoteiroAtracaoSerializer)
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate
+from django.shortcuts import get_object_or_404
+from django.core.exceptions import PermissionDenied
+from django.db import models
+from rest_framework import serializers
 
 class SignupView(generics.CreateAPIView):
     serializer_class = UserSerializer
@@ -86,16 +90,111 @@ class AtracaoDetail(generics.RetrieveAPIView):
     permission_classes = [AllowAny]
     lookup_field = 'id'
 
-class RoteiroList(generics.ListAPIView):
-    queryset = Roteiros.objects.all()
+class RoteiroList(generics.ListCreateAPIView):
     serializer_class = RoteirosSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
-class RoteiroDetail(generics.RetrieveAPIView):
-    queryset = Roteiros.objects.all()
+    def get_queryset(self):
+        # Show all public roteiros and user's own roteiros
+        return Roteiros.objects.filter(public=True) | Roteiros.objects.filter(user=self.request.user)
+    
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+class RoteiroDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = RoteirosSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     lookup_field = 'id'
+
+    def get_queryset(self):
+        # Show all public roteiros and user's own roteiros
+        return Roteiros.objects.filter(public=True) | Roteiros.objects.filter(user=self.request.user)
+    
+    def perform_update(self, serializer):
+        # Ensure only the owner can update
+        roteiro = self.get_object()
+        if roteiro.user != self.request.user:
+            raise PermissionDenied("You don't have permission to edit this roteiro")
+        serializer.save()
+    
+    def perform_destroy(self, instance):
+        # Ensure only the owner can delete
+        if instance.user != self.request.user:
+            raise PermissionDenied("You don't have permission to delete this roteiro")
+        instance.delete()
+
+class RoteiroAtracaoList(generics.ListCreateAPIView):
+    serializer_class = RoteiroAtracaoSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        roteiro_id = self.kwargs.get('roteiro_id')
+        roteiro = get_object_or_404(Roteiros, id=roteiro_id)
+        
+        # Ensure user has access to this roteiro
+        if not roteiro.public and roteiro.user != self.request.user:
+            return RoteiroAtracao.objects.none()
+            
+        return RoteiroAtracao.objects.filter(roteiro_id=roteiro_id).order_by('ordem')
+    
+    def perform_create(self, serializer):
+        roteiro_id = self.kwargs.get('roteiro_id')
+        roteiro = get_object_or_404(Roteiros, id=roteiro_id)
+        
+        # Ensure only the owner can add attractions
+        if roteiro.user != self.request.user:
+            raise PermissionDenied("You don't have permission to add attractions to this roteiro")
+        
+        # Get the maximum order value or default to 0
+        max_ordem = RoteiroAtracao.objects.filter(roteiro=roteiro).aggregate(
+            models.Max('ordem'))['ordem__max'] or 0
+        
+        # Set the ordem value to max + 1 if not provided
+        ordem = serializer.validated_data.get('ordem', max_ordem + 1)
+        
+        # Make sure dia is within roteiro duration
+        dia = serializer.validated_data.get('dia', 1)
+        if roteiro.duracao and dia > roteiro.duracao:
+            raise serializers.ValidationError(
+                {"dia": f"Day must be within roteiro duration (1-{roteiro.duracao})"}
+            )
+        
+        serializer.save(roteiro=roteiro, ordem=ordem, dia=dia)
+
+class RoteiroAtracaoDetail(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = RoteiroAtracaoSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'id'
+    
+    def get_queryset(self):
+        roteiro_id = self.kwargs.get('roteiro_id')
+        return RoteiroAtracao.objects.filter(roteiro_id=roteiro_id)
+    
+    def perform_update(self, serializer):
+        roteiro_atracao = self.get_object()
+        roteiro = roteiro_atracao.roteiro
+        
+        # Ensure only the owner can update
+        if roteiro.user != self.request.user:
+            raise PermissionDenied("You don't have permission to modify this roteiro")
+        
+        # Make sure dia is within roteiro duration
+        dia = serializer.validated_data.get('dia', roteiro_atracao.dia)
+        if roteiro.duracao and dia > roteiro.duracao:
+            raise serializers.ValidationError(
+                {"dia": f"Day must be within roteiro duration (1-{roteiro.duracao})"}
+            )
+        
+        serializer.save()
+    
+    def perform_destroy(self, instance):
+        roteiro = instance.roteiro
+        
+        # Ensure only the owner can delete
+        if roteiro.user != self.request.user:
+            raise PermissionDenied("You don't have permission to modify this roteiro")
+        
+        instance.delete()
 
 class AvaliacaoList(generics.ListAPIView):
     queryset = Avaliacoes.objects.all()

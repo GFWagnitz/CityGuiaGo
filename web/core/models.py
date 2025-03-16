@@ -67,7 +67,8 @@ class Roteiros(models.Model):
     categoria = models.ForeignKey(Categorias, on_delete=models.SET_NULL, null=True, blank=True)
     public = models.BooleanField(default=False)  # Added default value
     created_at = models.DateTimeField(default=timezone.now)
-    duracao_estimada = models.IntegerField(blank=True, null=True) # Added blank=True, null=True
+    duracao = models.IntegerField(blank=True, null=True)  # Renamed from duracao_estimada
+    atracoes = models.ManyToManyField(Atracoes, through='RoteiroAtracao', related_name='roteiros')
 
     def __str__(self):
         return self.titulo
@@ -77,6 +78,55 @@ class Roteiros(models.Model):
         verbose_name_plural = "Roteiros"
 
 
+class RoteiroAtracao(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    roteiro = models.ForeignKey(Roteiros, on_delete=models.CASCADE)
+    atracao = models.ForeignKey(Atracoes, on_delete=models.CASCADE)
+    dia = models.PositiveIntegerField(default=1)  # Starting from 1, not 0
+    ordem = models.PositiveIntegerField(default=1)  # Order within the entire roteiro
+    created_at = models.DateTimeField(default=timezone.now)
+
+    def save(self, *args, **kwargs):
+        # If this is a new entry or the order has changed
+        if not self.pk or self._state.adding:
+            # Get all roteiro_atracoes with the same roteiro and greater or equal ordem
+            subsequent_entries = RoteiroAtracao.objects.filter(
+                roteiro=self.roteiro, 
+                ordem__gte=self.ordem
+            ).exclude(pk=self.pk)
+            
+            # Increment ordem for all subsequent entries
+            for entry in subsequent_entries:
+                entry.ordem += 1
+                entry.save()
+        
+        super().save(*args, **kwargs)
+    
+    def delete(self, *args, **kwargs):
+        ordem = self.ordem
+        roteiro = self.roteiro
+        
+        # Delete this entry
+        super().delete(*args, **kwargs)
+        
+        # Update the ordem of all subsequent entries
+        subsequent_entries = RoteiroAtracao.objects.filter(
+            roteiro=roteiro, 
+            ordem__gt=ordem
+        )
+        
+        for entry in subsequent_entries:
+            entry.ordem -= 1
+            entry.save()
+    
+    def __str__(self):
+        return f"{self.roteiro.titulo} - {self.atracao.nome} (Dia {self.dia}, Ordem {self.ordem})"
+    
+    class Meta:
+        verbose_name = "Roteiro-Atração"
+        verbose_name_plural = "Roteiro-Atrações"
+        ordering = ['roteiro', 'ordem']
+        unique_together = [['roteiro', 'ordem']]
 
 class Avaliacoes(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

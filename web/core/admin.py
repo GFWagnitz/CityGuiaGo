@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import User, Categorias, Atracoes, Roteiros, Avaliacoes, Ofertas, Denuncias, Imagens
+from .models import User, Categorias, Atracoes, Roteiros, Avaliacoes, Ofertas, Denuncias, Imagens, RoteiroAtracao
 
 # Inline models for nested representation in the admin
 
@@ -17,6 +17,12 @@ class SubcategoriasInline(admin.TabularInline):
 class AvaliacoesInline(admin.TabularInline):
     model = Avaliacoes
     extra = 1
+
+class RoteiroAtracaoInline(admin.TabularInline):
+    model = RoteiroAtracao
+    extra = 1
+    fields = ('atracao', 'dia', 'ordem')
+    autocomplete_fields = ['atracao']
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
@@ -90,10 +96,17 @@ class AtracoesAdmin(admin.ModelAdmin):
 
 @admin.register(Roteiros)
 class RoteirosAdmin(admin.ModelAdmin):
-    list_display = ('titulo', 'user', 'categoria', 'public', 'created_at', 'duracao_estimada')
+    list_display = ('titulo', 'user', 'categoria', 'public', 'created_at', 'duracao')
     search_fields = ('titulo', 'descricao', 'user__nome')  # Search user by name
     list_filter = ('public', 'created_at', 'categoria', 'user')
-    inlines = [AvaliacoesInline]
+    inlines = [RoteiroAtracaoInline, AvaliacoesInline]
+
+@admin.register(RoteiroAtracao)
+class RoteiroAtracaoAdmin(admin.ModelAdmin):
+    list_display = ('roteiro', 'atracao', 'dia', 'ordem', 'created_at')
+    search_fields = ('roteiro__titulo', 'atracao__nome')
+    list_filter = ('dia', 'created_at', 'roteiro', 'atracao')
+    autocomplete_fields = ['roteiro', 'atracao']
 
 @admin.register(Avaliacoes)
 class AvaliacoesAdmin(admin.ModelAdmin):
