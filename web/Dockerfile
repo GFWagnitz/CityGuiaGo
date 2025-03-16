@@ -4,11 +4,15 @@ FROM python:3.13
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
+ENV DB_PATH=/data/db.sqlite3
 
 # Setup phase
 RUN apt-get update; \
 apt-get install -y gunicorn; \
 apt-get clean
+
+# Create the data directory
+RUN mkdir -p /data && chmod 777 /data
 
 # Set work directory
 WORKDIR /app
