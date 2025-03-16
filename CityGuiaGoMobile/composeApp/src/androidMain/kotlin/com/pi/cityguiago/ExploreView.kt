@@ -18,12 +18,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavHostController
 import com.pi.cityguiago.designsystem.*
 import com.pi.cityguiago.designsystem.components.*
-import com.pi.cityguiago.model.Attraction
+import com.pi.cityguiago.module.home.CategoryAttraction
 import com.pi.cityguiago.module.home.ExploreEffect
 import com.pi.cityguiago.module.home.ExploreEvent
 import com.pi.cityguiago.module.home.ExploreViewModel
-import com.pi.cityguiago.module.home.HomeEffect
-import com.pi.cityguiago.module.home.HomeViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -31,17 +29,18 @@ fun ExploreView(
     navController: NavHostController,
     viewModel: ExploreViewModel = koinViewModel()
 ) {
-    var text by remember { mutableStateOf("") }
+    var searchQuery by remember { mutableStateOf("") }
 
     val attractions = navController.previousBackStackEntry
         ?.savedStateHandle
-        ?.get<List<Attraction>>("attractions") ?: emptyList()
+        ?.get<List<CategoryAttraction>>("attractions") ?: emptyList()
 
     LaunchedEffect(viewModel) {
         viewModel.effects.collect { effect ->
             when (effect) {
                 is ExploreEffect.OpenAttractionView -> {
-                    navController.navigate("attraction")
+                    val attractionId = "123"
+                    navController.navigate("attraction/$attractionId")
                 }
             }
         }
@@ -69,13 +68,13 @@ fun ExploreView(
         ) {
             VerticalSpacers.Large()
             SearchBar(
-                text = text,
+                text = searchQuery,
                 placeholder = "Explore a Grande Vitória",
-                onTextChanged = { newText -> text = newText },
+                onTextChanged = { newText -> searchQuery = newText },
                 icon = painterResource(id = R.drawable.ic_search)
             )
             VerticalSpacers.Default()
-            Attractions(navController, attractions) {
+            Attractions(navController, attractions, searchQuery) {
                 viewModel.onEvent(ExploreEvent.OpenAttractionView)
             }
             VerticalSpacers.Large()

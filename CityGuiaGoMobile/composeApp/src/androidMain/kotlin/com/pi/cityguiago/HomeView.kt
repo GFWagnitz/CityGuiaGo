@@ -30,7 +30,9 @@ import coil.compose.AsyncImage
 import com.pi.cityguiago.designsystem.*
 import com.pi.cityguiago.designsystem.components.*
 import com.pi.cityguiago.model.Attraction
+import com.pi.cityguiago.model.Itinerary
 import com.pi.cityguiago.module.Login.LoginEffect
+import com.pi.cityguiago.module.home.CategoryAttraction
 import com.pi.cityguiago.module.home.HomeEffect
 import com.pi.cityguiago.module.home.HomeEvent
 import com.pi.cityguiago.module.home.HomeState
@@ -55,7 +57,8 @@ fun HomeView(
         viewModel.effects.collect { effect ->
             when (effect) {
                 is HomeEffect.OpenAttractionView -> {
-                    navController.navigate("attraction")
+                    val attractionId = "123"
+                    navController.navigate("attraction/$attractionId")
                 }
                 is HomeEffect.OpenExploreView -> {
                     navController.currentBackStackEntry?.savedStateHandle?.set(
@@ -79,14 +82,14 @@ fun HomeView(
     ) {
         when (homeState) {
             is ComponentState.Idle, ComponentState.Loading -> {
-                Header(scope, store)
+                Header(store)
             }
             is ComponentState.Error -> {
-                Header(scope, store)
+                Header(store)
             }
             is ComponentState.Loaded<*> -> {
                 ((homeState as ComponentState.Loaded<*>).data as HomeState).also { state ->
-                    Header(scope, store)
+                    Header(store)
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -94,15 +97,15 @@ fun HomeView(
                         horizontalAlignment = Alignment.Start
                     ) {
                         VerticalSpacers.Large()
-                        SearchSection(navController, state, viewModel::onEvent)
+                        SearchSection(state, viewModel::onEvent)
                         VerticalSpacers.Large()
-                        topAttractions(state)
+                        topAttractions(state, viewModel::onEvent)
                         VerticalSpacers.Large()
                         Attractions(navController, state.attractions) {
-                            viewModel.onEvent(HomeEvent.OpenAttractionView)
+                            viewModel.onEvent(HomeEvent.OnAttractionClick)
                         }
                         VerticalSpacers.Large()
-                        Itineraries()
+                        Itineraries(state.itineraries, viewModel::onEvent)
                         VerticalSpacers.Large()
                     }
                 }
@@ -113,14 +116,13 @@ fun HomeView(
 
 @Composable
 fun Header(
-    scope: CoroutineScope,
     store: PrefCacheManager
 ) {
-    var savedValue by rememberSaveable { mutableStateOf("") }
+    var username by rememberSaveable { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
         val user = store.getUser()
-        savedValue = user?.user?.nome ?: ""
+        username = user?.user?.nome ?: ""
     }
 
     Box(
@@ -130,7 +132,7 @@ fun Header(
             .padding(Metrics.Margins.large)
     ) {
         Column {
-            TextH1("Olá, $savedValue 👋", colorMode = ColorMode.Secondary)
+            TextH1("Olá, $username 👋", colorMode = ColorMode.Secondary)
             TextBody1("Vamos explorar a Grande Vitória juntos!", colorMode = ColorMode.Secondary)
             VerticalSpacers.Massive()
         }
@@ -139,7 +141,6 @@ fun Header(
 
 @Composable
 fun SearchSection(
-    navController: NavHostController,
     state: HomeState,
     onEvent: (HomeEvent) -> Unit
 ) {
@@ -152,7 +153,7 @@ fun SearchSection(
             text = "",
             placeholder = "Explore a Grande Vitória",
             onTextChanged = {
-                onEvent(HomeEvent.OpenExploreView(state.attractions))
+                onEvent(HomeEvent.OnSeachBarClick(state.attractions))
             },
             icon = painterResource(id = R.drawable.ic_search)
         )
@@ -171,16 +172,19 @@ fun SearchSection(
                 .padding(Metrics.Margins.default)
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(Metrics.Margins.small)) {
-                SecondaryButton(text = "Seus Favoritos", onClick = {}, icon = painterResource(id = R.drawable.ic_option))
-                SecondaryButton(text = "Seus Roteiros", onClick = {}, icon = painterResource(id = R.drawable.ic_option))
+                SecondaryButton(text = "Seus Favoritos", onClick = { onEvent(HomeEvent.OnFavoriteButtonClick) }, icon = painterResource(id = R.drawable.ic_option))
+                SecondaryButton(text = "Seus Roteiros", onClick = { onEvent(HomeEvent.OnItineraryListButtonClick) }, icon = painterResource(id = R.drawable.ic_option))
             }
         }
     }
 }
 
 @Composable
-fun topAttractions(state: HomeState) {
-    if (state.firstAttraction == null) return
+fun topAttractions(
+    state: HomeState,
+    onEvent: (HomeEvent) -> Unit
+) {
+    if (state.attractions.isEmpty() || state.firstAttraction == null) return
 
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -191,14 +195,17 @@ fun topAttractions(state: HomeState) {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            topAttractionCard(
-                title = state.firstAttraction?.nome,
-                imageUrl = state.firstAttraction?.imagens?.first()?.caminho,
-                number = 1,
-                modifier = Modifier
-                    .weight(1f)
-                    .height(200.dp)
-            )
+            state.firstAttraction?.let {
+                topAttractionCard(
+                    title = it.nome,
+                    imageUrl = it.imagens.firstOrNull()?.caminho,
+                    number = 1,
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(200.dp)
+                        .clickable { onEvent(HomeEvent.OnAttractionClick) }
+                )
+            }
 
             HorizontalSpacers.Default()
 
@@ -209,23 +216,29 @@ fun topAttractions(state: HomeState) {
                 verticalArrangement = Arrangement.spacedBy(Metrics.Margins.default),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                topAttractionCard(
-                    title = state.secondAttraction?.nome,
-                    imageUrl = state.secondAttraction?.imagens?.first()?.caminho,
-                    number = 2,
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth()
-                )
+                state.secondAttraction?.let {
+                    topAttractionCard(
+                        title = it.nome,
+                        imageUrl = it.imagens.firstOrNull()?.caminho,
+                        number = 2,
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .clickable { onEvent(HomeEvent.OnAttractionClick) }
+                    )
+                }
 
-                topAttractionCard(
-                    title = state.thirdAttraction?.nome,
-                    imageUrl = state.thirdAttraction?.imagens?.first()?.caminho,
-                    number = 3,
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth()
-                )
+                state.thirdAttraction?.let {
+                    topAttractionCard(
+                        title = it.nome,
+                        imageUrl = it.imagens.firstOrNull()?.caminho,
+                        number = 3,
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .clickable { onEvent(HomeEvent.OnAttractionClick) }
+                    )
+                }
             }
         }
     }
@@ -289,21 +302,27 @@ fun topAttractionCard(
 @Composable
 fun Attractions(
     navController: NavHostController,
-    attractions: List<Attraction>,
-    onClick: (attractionId: Attraction) -> Unit
+    attractions: List<CategoryAttraction>,
+    searchQuery: String = "",
+    onClick: (Attraction) -> Unit
 ) {
-    val tabTitles = listOf("Restaurantes", "Parques", "Praias", "Hoteis", "Passeios")
-    val tabContents = listOf(
-        attractions.filter { it.categoria.id == "0" },
-        attractions.filter { it.categoria.id == "1" },
-        attractions.filter { it.categoria.id == "2" },
-        attractions.filter { it.categoria.id == "3" },
-        attractions.filter { it.categoria.id == "4" },
-    )
+    // Get unique categories dynamically
+    val tabTitles = attractions.map { it.categoria }
+
+    // Filter attractions inside each category
+    val filteredAttractions = attractions.map { categoryAttraction ->
+        categoryAttraction.copy(
+            attractions = categoryAttraction.attractions.filter {
+                it.nome.contains(searchQuery, ignoreCase = true) ||
+                        it.descricao.contains(searchQuery, ignoreCase = true)
+            }
+        )
+    }
 
     var selectedTabIndex by remember { mutableStateOf(0) }
 
-    val items = tabContents[selectedTabIndex]
+    // Match selected tab to its attractions
+    val items = filteredAttractions.getOrNull(selectedTabIndex)?.attractions ?: emptyList()
     val rows = (items.size + 1) / 2
     val gridHeight = 184.dp * rows + Metrics.Margins.nano + if (rows > 1) Metrics.Margins.default * (rows - 1) else Metrics.Margins.zero
 
@@ -312,6 +331,7 @@ fun Attractions(
             .fillMaxWidth()
             .padding(vertical = Metrics.Margins.default)
     ) {
+        // Dynamic Tabs
         ScrollableTabRow(
             selectedTabIndex = selectedTabIndex,
             backgroundColor = Color.Transparent,
@@ -356,9 +376,7 @@ fun Attractions(
                     AttractionCard(
                         item,
                         modifier = Modifier.fillMaxWidth(),
-                        onClick = {
-                            onClick(item)
-                        }
+                        onClick = { onClick(item) }
                     )
                 }
             }
@@ -436,19 +454,12 @@ fun AttractionCard(
     }
 }
 
-data class Itinerary(
-    val name: String,
-    val duration: String,
-    val imageUrl: String
-)
-
 @Composable
-fun Itineraries() {
-    val itineraries = listOf(
-        Itinerary("Roteiro A", "2h 30m", "https://static.vecteezy.com/ti/fotos-gratis/t2/41436456-ai-gerado-cinematografico-imagem-do-uma-leao-dentro-uma-natureza-panorama-foto.jpg"),
-        Itinerary("Roteiro B", "3h 15m", "https://static.vecteezy.com/ti/fotos-gratis/t2/41436456-ai-gerado-cinematografico-imagem-do-uma-leao-dentro-uma-natureza-panorama-foto.jpg"),
-        Itinerary("Roteiro C", "1h 45m", "https://static.vecteezy.com/ti/fotos-gratis/t2/41436456-ai-gerado-cinematografico-imagem-do-uma-leao-dentro-uma-natureza-panorama-foto.jpg")
-    )
+fun Itineraries(
+    itineraries: List<Itinerary>,
+    onEvent: (HomeEvent) -> Unit
+) {
+    if (itineraries.isEmpty()) return
 
     Column(
         modifier = Modifier
@@ -461,7 +472,7 @@ fun Itineraries() {
             verticalArrangement = Arrangement.spacedBy(Metrics.Margins.default)
         ) {
             itineraries.forEach { itinerary ->
-                ItineraryCard(itinerary = itinerary)
+                ItineraryCard(itinerary = itinerary, Modifier.clickable { onEvent(HomeEvent.OnItineraryClick) })
             }
         }
     }
@@ -485,22 +496,20 @@ fun ItineraryCard(itinerary: Itinerary, modifier: Modifier = Modifier) {
             verticalAlignment = Alignment.Top
         ) {
             AsyncImage(
-                model = itinerary.imageUrl,
-                contentDescription = itinerary.name,
+                model = "",
+                contentDescription = itinerary.titulo,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(64.dp)
                     .clip(RoundedCornerShape(Metrics.RoundCorners.default))
                     .background(Gray)
-                    .fillMaxWidth()
             )
             HorizontalSpacers.Small()
             Column {
-                TextH5(text = itinerary.name)
+                TextH5(text = itinerary.titulo)
                 VerticalSpacers.Small()
-                TextBody2(text = itinerary.duration)
+                TextBody2(text = itinerary.duracaoEstimada ?: "")
             }
         }
     }
 }
-

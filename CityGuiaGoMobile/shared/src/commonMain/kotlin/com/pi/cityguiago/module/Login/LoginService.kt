@@ -7,9 +7,9 @@ import com.pi.cityguiago.network.ApiClient
 
 class LoginService(private val apiClient: ApiClient) {
     suspend fun login(email: String, password: String): Result<AuthResponse> {
-        if (true) {
-            return Result.success(mockAuthResponse)
-        } else {
+//        if (true) {
+//            return Result.success(mockAuthResponse)
+//        } else {
             return try {
                 val result: AuthResponse = apiClient.post(
                     "https://cityguiago.com/api/auth/login/",
@@ -20,7 +20,7 @@ class LoginService(private val apiClient: ApiClient) {
                 println("Registration failed: ${e.message}")
                 Result.failure(e)
             }
-        }
+//        }
     }
 
     private val mockAuthResponse = AuthResponse("123", User("123", "Leo", "leo@mail.com"))

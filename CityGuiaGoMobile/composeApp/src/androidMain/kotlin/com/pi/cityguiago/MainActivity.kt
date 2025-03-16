@@ -15,6 +15,8 @@ import com.pi.cityguiago.designsystem.Background
 import com.pi.cityguiago.network.PrefCacheManager
 import com.pi.cityguiago.network.createDataStore
 import androidx.compose.runtime.remember
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,7 +46,7 @@ fun NavigationGraph(store: PrefCacheManager) {
 
     NavHost(
         navController = navController,
-        startDestination = "login"
+        startDestination = "home"
     ) {
         composable("login") {
             LoginView(navController, store)
@@ -58,8 +60,17 @@ fun NavigationGraph(store: PrefCacheManager) {
         composable("explore") {
             ExploreView(navController)
         }
-        composable("attraction") {
-            AttractionView(navController)
+        composable(
+            "attraction/{attractionId}",
+            arguments = listOf(
+                navArgument("attractionId") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val attractionId = backStackEntry.arguments?.getString("attractionId") ?: ""
+            AttractionView(navController, attractionId)
+        }
+        composable("complaint") {
+            ComplaintView(navController)
         }
     }
 }

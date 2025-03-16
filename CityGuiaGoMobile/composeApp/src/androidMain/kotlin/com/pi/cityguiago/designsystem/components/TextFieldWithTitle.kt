@@ -44,7 +44,7 @@ fun TextFieldWithTitle(
                 if (isPassword) {
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
                         Icon(
-                            painter = if (passwordVisible) painterResource(id = R.drawable.ic_eye_open) else painterResource(id = R.drawable.ic_eye_open),
+                            painter = if (passwordVisible) painterResource(id = R.drawable.ic_eye_open) else painterResource(id = R.drawable.ic_eye_closed),
                             contentDescription = if (passwordVisible) "Esconder senha" else "Mostrar senha",
                             tint = Gray
                         )
