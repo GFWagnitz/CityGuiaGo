@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from .models import User, Categorias, Atracoes, Roteiros, Avaliacoes, Ofertas, Denuncias, Imagens
+from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth import authenticate
 
 class ImagensSerializer(serializers.ModelSerializer):
     class Meta:
@@ -9,15 +11,28 @@ class ImagensSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     imagens = ImagensSerializer(many=True, read_only=True) # Nested serializer, read-only
+    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'nome', 'created_at', 'avatar', 'imagens']  # Include all fields
+        fields = ['id', 'username', 'email', 'nome', 'password', 'created_at', 'avatar', 'imagens']
         read_only_fields = ['id', 'created_at']
-        extra_kwargs = {'password': {'write_only': True}}
+        
         
     def create(self, validated_data):
-        user = User.objects.create_user(**validated_data)
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            email=validated_data.get('email', ''),
+            password=validated_data['password']
+        )
+        
+        # Add any optional fields if provided
+        if 'nome' in validated_data:
+            user.nome = validated_data['nome']
+        if 'avatar' in validated_data:
+            user.avatar = validated_data['avatar']
+            
+        user.save()
         return user
 
 class CategoriasSerializer(serializers.ModelSerializer):
@@ -71,3 +86,23 @@ class DenunciasSerializer(serializers.ModelSerializer):
         model = Denuncias
         fields = '__all__'
         read_only_fields = [field.name for field in Denuncias._meta.fields]
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True)
+    password = serializers.CharField(required=True, write_only=True)
+    
+    def validate(self, attrs):
+        username = attrs.get('username')
+        password = attrs.get('password')
+        
+        if username and password:
+            user = authenticate(username=username, password=password)
+            if not user:
+                raise serializers.ValidationError('Unable to log in with provided credentials.')
+            if not user.is_active:
+                raise serializers.ValidationError('User account is disabled.')
+        else:
+            raise serializers.ValidationError('Must include "username" and "password".')
+            
+        attrs['user'] = user
+        return attrs

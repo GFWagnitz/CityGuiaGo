@@ -2,6 +2,11 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    # Authentication endpoints
+    path('auth/signup/', views.SignupView.as_view(), name='auth-signup'),
+    path('auth/login/', views.LoginView.as_view(), name='auth-login'),
+    path('auth/validate/', views.TokenValidateView.as_view(), name='auth-validate'),
+    
     path('me/', views.UsuarioSelf.as_view(), name='usuario-self'), #TODO: Corrigir usuario e user nao sao iguais
 
     path('categorias/', views.CategoriaList.as_view(), name='categoria-list'),
