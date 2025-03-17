@@ -46,7 +46,7 @@ import org.koin.androidx.compose.koinViewModel
 fun AttractionView(
     navController: NavHostController,
     attractionId: String,
-    viewModel: AttractionViewModel = koinViewModel()
+    viewModel: AttractionViewModel = koinViewModel(key = "AttractionViewModel-${attractionId}")
 ) {
     val context = LocalContext.current
 
@@ -98,7 +98,7 @@ fun AttractionView(
                 is ComponentState.Loaded<*> -> {
                     ((attractionState as ComponentState.Loaded<*>).data as AttractionState).also { state ->
                         attractionName = state.attraction.nome
-                        ImageHeader(state.attraction.imagens.firstOrNull()?.caminho ?: "")
+                        ImageHeader(state.attraction.imagens.firstOrNull()?.imageUrl ?: "")
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()

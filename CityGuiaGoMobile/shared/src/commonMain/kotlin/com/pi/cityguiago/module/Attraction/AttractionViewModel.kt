@@ -3,6 +3,7 @@ package com.pi.cityguiago.module.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pi.cityguiago.ComponentState
+import com.pi.cityguiago.extension.fixUrl
 import com.pi.cityguiago.model.Complaint
 import com.pi.cityguiago.module.Attraction.AttractionService
 import com.pi.cityguiago.module.Attraction.AttractionState
@@ -61,10 +62,17 @@ class AttractionViewModel(
                             val reviewsCount = reviews.size
                             val ratings = reviews.map { it.nota }
                             val rating = if (ratings.isNotEmpty()) ratings.average() else 0.0
+                            val fixedAttraction = attraction.copy(
+                                imagens = attraction.imagens.map { image ->
+                                    image.copy(
+                                        imageUrl = fixUrl(image.imageUrl)
+                                    )
+                                }
+                            )
 
                             _state.value = ComponentState.Loaded(
                                 AttractionState(
-                                    attraction = attraction,
+                                    attraction = fixedAttraction,
                                     offers = offers,
                                     reviews = reviews,
                                     itineraries = itineraries,

@@ -1,6 +1,8 @@
 package com.pi.cityguiago.di
 
 import com.pi.cityguiago.module.Attraction.AttractionService
+import com.pi.cityguiago.module.Itinerary.ItineraryService
+import com.pi.cityguiago.module.Itinerary.ItineraryViewModel
 import com.pi.cityguiago.module.Login.LoginService
 import com.pi.cityguiago.module.Login.LoginViewModel
 import com.pi.cityguiago.module.Register.RegisterService
@@ -17,12 +19,14 @@ import org.koin.dsl.module
 fun sharedModule(engine: HttpClientEngine): Module = module {
     single { ApiClient(engine) }
     single { RegisterService(get()) }
-    single { RegisterViewModel(get()) }
+    factory { RegisterViewModel(get()) } // Changed to factory
     single { LoginService(get()) }
-    single { LoginViewModel(get()) }
+    factory { LoginViewModel(get()) } // Changed to factory
     single { HomeService(get()) }
-    single { HomeViewModel(get()) }
-    single { ExploreViewModel() }
+    factory { HomeViewModel(get()) } // Changed to factory if needed
+    factory { ExploreViewModel() } // Changed to factory if you want new instance every time
     single { AttractionService(get()) }
-    single { AttractionViewModel(get()) }
-} 
+    factory { AttractionViewModel(get()) } // Changed to factory
+    single { ItineraryService(get()) }
+    factory { ItineraryViewModel(get()) } // Changed to factory if needed
+}

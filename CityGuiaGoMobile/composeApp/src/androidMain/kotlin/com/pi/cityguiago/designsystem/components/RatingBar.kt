@@ -28,8 +28,8 @@ fun RatingBar(
         for (i in 1..starCount) {
             val starIcon = when {
                 i <= floor(rating) -> painterResource(id = R.drawable.ic_star)
-                i <= ceil(rating) && rating % 1 != 0f -> painterResource(id = R.drawable.ic_star)
-                else -> painterResource(id = R.drawable.ic_star)
+                i <= ceil(rating) && rating % 1 != 0f -> painterResource(id = R.drawable.ic_star_half)
+                else -> painterResource(id = R.drawable.ic_star_empty)
             }
             
             Icon(

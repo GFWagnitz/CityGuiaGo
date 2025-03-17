@@ -51,7 +51,6 @@ fun HomeView(
 ) {
     val context = LocalContext.current
     val homeState by viewModel.state.collectAsState()
-    val scope = rememberCoroutineScope()
 
     LaunchedEffect(viewModel) {
         viewModel.effects.collect { effect ->
@@ -68,6 +67,9 @@ fun HomeView(
                 }
                 is HomeEffect.ShowErrorMessage -> {
                     Toast.makeText(context, effect.errorMessage, Toast.LENGTH_LONG).show()
+                }
+                is HomeEffect.OpenItinerariesView -> {
+                    navController.navigate("itineraries")
                 }
             }
         }
@@ -197,7 +199,7 @@ fun topAttractions(
             state.firstAttraction?.let {
                 topAttractionCard(
                     title = it.nome,
-                    imageUrl = it.imagens.firstOrNull()?.caminho,
+                    imageUrl = it.imagens.firstOrNull()?.imageUrl,
                     number = 1,
                     modifier = Modifier
                         .weight(1f)
@@ -218,7 +220,7 @@ fun topAttractions(
                 state.secondAttraction?.let {
                     topAttractionCard(
                         title = it.nome,
-                        imageUrl = it.imagens.firstOrNull()?.caminho,
+                        imageUrl = it.imagens.firstOrNull()?.imageUrl,
                         number = 2,
                         modifier = Modifier
                             .weight(1f)
@@ -230,7 +232,7 @@ fun topAttractions(
                 state.thirdAttraction?.let {
                     topAttractionCard(
                         title = it.nome,
-                        imageUrl = it.imagens.firstOrNull()?.caminho,
+                        imageUrl = it.imagens.firstOrNull()?.imageUrl,
                         number = 3,
                         modifier = Modifier
                             .weight(1f)
@@ -306,7 +308,6 @@ fun Attractions(
 ) {
     val tabTitles = attractions.map { it.categoria }
 
-    // Ensure that the filtered attractions list is not empty
     val filteredAttractions = attractions.map { categoryAttraction ->
         categoryAttraction.copy(
             attractions = categoryAttraction.attractions.filter {
@@ -314,15 +315,14 @@ fun Attractions(
                         it.descricao.contains(searchQuery, ignoreCase = true)
             }
         )
-    }.filter { it.attractions.isNotEmpty() } // Remove empty categories
+    }.filter { it.attractions.isNotEmpty() }
 
     var selectedTabIndex by remember { mutableStateOf(0) }
 
-    // Prevent accessing an invalid index
     val items = if (filteredAttractions.isNotEmpty() && selectedTabIndex < filteredAttractions.size) {
         filteredAttractions[selectedTabIndex].attractions
     } else {
-        emptyList() // Safe fallback
+        emptyList()
     }
 
     val rows = (items.size + 1) / 2
@@ -411,7 +411,7 @@ fun AttractionCard(
                     .background(Gray)
             ) {
                 AsyncImage(
-                    model = attraction.imagens.firstOrNull()?.caminho ?: "",
+                    model = attraction.imagens.firstOrNull()?.imageUrl ?: "",
                     contentDescription = attraction?.nome,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
@@ -443,7 +443,7 @@ fun AttractionCard(
                             tint = Color.Unspecified
                         )
                         HorizontalSpacers.Micro()
-                        TextBody2(String.format("%.1f", 1.0))
+                        TextBody2(String.format("%.1f", 5.0))
                         HorizontalSpacers.Micro()
                         Icon(
                             painter = painterResource(id = R.drawable.ic_location),
