@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pi.cityguiago.ComponentState
 import com.pi.cityguiago.model.Attraction
+import com.pi.cityguiago.model.Category
 import com.pi.cityguiago.model.Itinerary
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
@@ -29,9 +30,9 @@ class HomeViewModel(
     fun onEvent(event: HomeEvent) {
         when (event) {
             is HomeEvent.LoadData -> loadData()
-            is HomeEvent.OnAttractionClick -> openAttractionView()
+            is HomeEvent.OnAttractionClick -> openAttractionView(event.attractionId)
             is HomeEvent.OnItineraryClick -> TODO()
-            is HomeEvent.OnSeachBarClick -> openExploreView(event.attractions)
+            is HomeEvent.OnSeachBarClick -> openExploreView()
             is HomeEvent.OnFavoriteButtonClick -> TODO()
             is HomeEvent.OnItineraryListButtonClick -> TODO()
         }
@@ -85,24 +86,27 @@ class HomeViewModel(
         )
     }
 
-    private fun openAttractionView() {
-        _effects.trySend(HomeEffect.OpenAttractionView)
+    private fun openAttractionView(attractionId: String) {
+        _effects.trySend(HomeEffect.OpenAttractionView(attractionId))
     }
 
-    private fun openExploreView(attractions: List<CategoryAttraction>) {
-        _effects.trySend(HomeEffect.OpenExploreView(attractions))
+    private fun openExploreView() {
+        val homeState = _state.value.extractData<HomeState>()
+        homeState?.let {
+            _effects.trySend(HomeEffect.OpenExploreView(it.attractions))
+        }
     }
 }
 
 sealed class HomeEffect {
     data class ShowErrorMessage(val errorMessage: String?) : HomeEffect()
-    object OpenAttractionView : HomeEffect()
+    data class OpenAttractionView(val attractionId: String) : HomeEffect()
     data class OpenExploreView(val attractions: List<CategoryAttraction>) : HomeEffect()
 }
 
 sealed class HomeEvent {
     object LoadData : HomeEvent()
-    object OnAttractionClick : HomeEvent()
+    data class OnAttractionClick(val attractionId: String) : HomeEvent()
     object OnItineraryClick : HomeEvent()
     object OnFavoriteButtonClick : HomeEvent()
     object OnItineraryListButtonClick : HomeEvent()

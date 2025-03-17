@@ -57,8 +57,7 @@ fun HomeView(
         viewModel.effects.collect { effect ->
             when (effect) {
                 is HomeEffect.OpenAttractionView -> {
-                    val attractionId = "123"
-                    navController.navigate("attraction/$attractionId")
+                    navController.navigate("attraction/${effect.attractionId}")
                 }
                 is HomeEffect.OpenExploreView -> {
                     navController.currentBackStackEntry?.savedStateHandle?.set(
@@ -101,8 +100,8 @@ fun HomeView(
                         VerticalSpacers.Large()
                         topAttractions(state, viewModel::onEvent)
                         VerticalSpacers.Large()
-                        Attractions(navController, state.attractions) {
-                            viewModel.onEvent(HomeEvent.OnAttractionClick)
+                        Attractions(state.attractions) { attraction ->
+                            viewModel.onEvent(HomeEvent.OnAttractionClick(attraction.id))
                         }
                         VerticalSpacers.Large()
                         Itineraries(state.itineraries, viewModel::onEvent)
@@ -122,7 +121,7 @@ fun Header(
 
     LaunchedEffect(Unit) {
         val user = store.getUser()
-        username = user?.user?.nome ?: ""
+        username = user?.user?.username ?: ""
     }
 
     Box(
@@ -203,7 +202,7 @@ fun topAttractions(
                     modifier = Modifier
                         .weight(1f)
                         .height(200.dp)
-                        .clickable { onEvent(HomeEvent.OnAttractionClick) }
+                        .clickable { onEvent(HomeEvent.OnAttractionClick(it.id)) }
                 )
             }
 
@@ -224,7 +223,7 @@ fun topAttractions(
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxWidth()
-                            .clickable { onEvent(HomeEvent.OnAttractionClick) }
+                            .clickable { onEvent(HomeEvent.OnAttractionClick(it.id)) }
                     )
                 }
 
@@ -236,7 +235,7 @@ fun topAttractions(
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxWidth()
-                            .clickable { onEvent(HomeEvent.OnAttractionClick) }
+                            .clickable { onEvent(HomeEvent.OnAttractionClick(it.id)) }
                     )
                 }
             }
@@ -301,15 +300,13 @@ fun topAttractionCard(
 
 @Composable
 fun Attractions(
-    navController: NavHostController,
     attractions: List<CategoryAttraction>,
     searchQuery: String = "",
     onClick: (Attraction) -> Unit
 ) {
-    // Get unique categories dynamically
     val tabTitles = attractions.map { it.categoria }
 
-    // Filter attractions inside each category
+    // Ensure that the filtered attractions list is not empty
     val filteredAttractions = attractions.map { categoryAttraction ->
         categoryAttraction.copy(
             attractions = categoryAttraction.attractions.filter {
@@ -317,44 +314,53 @@ fun Attractions(
                         it.descricao.contains(searchQuery, ignoreCase = true)
             }
         )
-    }
+    }.filter { it.attractions.isNotEmpty() } // Remove empty categories
 
     var selectedTabIndex by remember { mutableStateOf(0) }
 
-    // Match selected tab to its attractions
-    val items = filteredAttractions.getOrNull(selectedTabIndex)?.attractions ?: emptyList()
+    // Prevent accessing an invalid index
+    val items = if (filteredAttractions.isNotEmpty() && selectedTabIndex < filteredAttractions.size) {
+        filteredAttractions[selectedTabIndex].attractions
+    } else {
+        emptyList() // Safe fallback
+    }
+
     val rows = (items.size + 1) / 2
-    val gridHeight = 184.dp * rows + Metrics.Margins.nano + if (rows > 1) Metrics.Margins.default * (rows - 1) else Metrics.Margins.zero
+    val gridHeight = 184.dp * rows + Metrics.Margins.nano +
+            if (rows > 1) Metrics.Margins.default * (rows - 1) else Metrics.Margins.zero
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = Metrics.Margins.default)
     ) {
-        // Dynamic Tabs
-        ScrollableTabRow(
-            selectedTabIndex = selectedTabIndex,
-            backgroundColor = Color.Transparent,
-            edgePadding = 0.dp,
-            indicator = { tabPositions ->
-                TabRowDefaults.Indicator(
-                    modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
-                    color = Blue
-                )
-            }
-        ) {
-            tabTitles.forEachIndexed { index, title ->
-                Tab(
-                    selected = selectedTabIndex == index,
-                    onClick = { selectedTabIndex = index },
-                    text = {
-                        Text(
-                            text = title,
-                            color = if (selectedTabIndex == index) Blue else Gray,
-                            style = MaterialTheme.typography.body2
+        if (tabTitles.isNotEmpty()) { // Ensure tabs exist before rendering
+            ScrollableTabRow(
+                selectedTabIndex = selectedTabIndex,
+                backgroundColor = Color.Transparent,
+                edgePadding = 0.dp,
+                indicator = { tabPositions ->
+                    if (selectedTabIndex < tabPositions.size) {
+                        TabRowDefaults.Indicator(
+                            modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
+                            color = Blue
                         )
                     }
-                )
+                }
+            ) {
+                tabTitles.forEachIndexed { index, title ->
+                    Tab(
+                        selected = selectedTabIndex == index,
+                        onClick = { selectedTabIndex = index },
+                        text = {
+                            Text(
+                                text = title,
+                                color = if (selectedTabIndex == index) Blue else Gray,
+                                style = MaterialTheme.typography.body2
+                            )
+                        }
+                    )
+                }
             }
         }
 

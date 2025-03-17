@@ -3,11 +3,11 @@ package com.pi.cityguiago.model
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class User(
+data class Review(
     val id: String,
-    val username: String,
-    val email: String,
+    val user: User,
+    val atracao: Attraction,
     val createdAt: String,
-    val avatar: Image?,
-    val imagens: List<Image>,
+    val nota: Int,
+    val comentario: String?
 )

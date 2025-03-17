@@ -14,6 +14,10 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -25,9 +29,15 @@ import com.pi.cityguiago.designsystem.components.TextEditor
 import com.pi.cityguiago.designsystem.components.TextH1
 import com.pi.cityguiago.designsystem.components.TextH3
 import com.pi.cityguiago.designsystem.components.VerticalSpacers
+import com.pi.cityguiago.model.Complaint
 
 @Composable
-fun ComplaintView(navController: NavHostController) {
+fun ComplaintView(
+    navController: NavHostController,
+    complaint: Complaint
+) {
+    var text by remember { mutableStateOf("") }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -52,7 +62,7 @@ fun ComplaintView(navController: NavHostController) {
 
             VerticalSpacers.Large()
 
-            TextH1("Mana Poke")
+            TextH1(complaint.title)
 
             VerticalSpacers.Large()
 
@@ -62,9 +72,9 @@ fun ComplaintView(navController: NavHostController) {
 
             TextEditor(
                 "Explique em detalhes o motivo pelo que acha que esse conteúdo deve ser removido do aplicativo",
-                ""
-            ) { }
-
+                text = text,
+                onTextChanged = { text = it }
+            )
             VerticalSpacers.Default()
 
             PrimaryButton("Enviar", onClick = {})

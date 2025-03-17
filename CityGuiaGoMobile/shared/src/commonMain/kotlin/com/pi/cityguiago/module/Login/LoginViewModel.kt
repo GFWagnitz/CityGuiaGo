@@ -21,12 +21,12 @@ class LoginViewModel(
 
     fun onEvent(event: LoginEvent) {
         when (event) {
-            is LoginEvent.Login -> login(event.email, event.password)
+            is LoginEvent.Login -> login(event.username, event.password)
         }
     }
 
-    fun login(email: String, password: String) {
-        if (!checkLoginData(email, password)) {
+    fun login(username: String, password: String) {
+        if (!checkLoginData(username, password)) {
             _effects.trySend(LoginEffect.ShowErrorMessage("Missing Email or Password"))
             return
         }
@@ -34,7 +34,7 @@ class LoginViewModel(
         viewModelScope.launch {
             _state.value = ComponentState.Loading
 
-            val result = loginService.login(email, password)
+            val result = loginService.login(username, password)
 
             result.fold(
                 onSuccess = { _effects.trySend(LoginEffect.LoginSuccess(it)) },
@@ -46,8 +46,8 @@ class LoginViewModel(
         }
     }
 
-    private fun checkLoginData(email: String, password: String): Boolean {
-        return email.isNotEmpty() && password.isNotEmpty()
+    private fun checkLoginData(username: String, password: String): Boolean {
+        return username.isNotEmpty() && password.isNotEmpty()
     }
 }
 
@@ -57,5 +57,5 @@ sealed class LoginEffect {
 }
 
 sealed class LoginEvent {
-    data class Login(val email: String, val password: String) : LoginEvent()
+    data class Login(val username: String, val password: String) : LoginEvent()
 }

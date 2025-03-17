@@ -1,5 +1,6 @@
 package com.pi.cityguiago
 
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -27,39 +28,54 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import coil.compose.AsyncImage
-import com.pi.cityguiago.model.Category
-import com.pi.cityguiago.model.Image
+import com.pi.cityguiago.model.Itinerary
+import com.pi.cityguiago.model.Offer
+import com.pi.cityguiago.model.Review
+import com.pi.cityguiago.module.Attraction.AttractionState
+import com.pi.cityguiago.module.home.AttractionEffect
+import com.pi.cityguiago.module.home.AttractionEvent
+import com.pi.cityguiago.module.home.AttractionViewModel
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun AttractionView(navController: NavHostController,
-                   attractionId: String) {
+fun AttractionView(
+    navController: NavHostController,
+    attractionId: String,
+    viewModel: AttractionViewModel = koinViewModel()
+) {
+    val context = LocalContext.current
 
-    val attraction = Attraction(
-        id = "1",
-        nome = "Mana Poke",
-        descricao = "Restaurante de temática e culinária havaiana",
-        categoria = Category(id = "0", descricao = "Restaurante"),
-        horarioFuncionamento = "10:00 - 22:00",
-        precoMedio = 50.0,
-        enderecoLogradouro = "Av. Vitória",
-        enderecoNumero = "1234",
-        enderecoComplemento = "Loja 5",
-        enderecoBairro = "Centro",
-        enderecoCidade = "Vitória",
-        enderecoEstado = "ES",
-        enderecoCep = "29000-000",
-        enderecoCoordenadas = "-20.3155, -40.3128",
-        imagens = listOf(
-                Image(id = "1", caminho = "https://static.vecteezy.com/ti/fotos-gratis/t2/41436456-ai-gerado-cinematografico-imagem-do-uma-leao-dentro-uma-natureza-panorama-foto.jpg")
-    )
-    )
+    val attractionState by viewModel.state.collectAsState()
+    var attractionName by remember { mutableStateOf("") }
+
+    LaunchedEffect(attractionId) {
+        viewModel.onEvent(AttractionEvent.LoadData(attractionId))
+    }
+
+    LaunchedEffect(viewModel) {
+        viewModel.effects.collect { effect ->
+            when (effect) {
+                is AttractionEffect.ShowErrorMessage -> {
+                    Toast.makeText(context, effect.errorMessage, Toast.LENGTH_LONG).show()
+                }
+                is AttractionEffect.OpenComplaintView -> {
+                    val complaintJson = Json.encodeToString(effect.complaint)
+                    navController.navigate("complaint/$complaintJson")
+                }
+                else -> {}
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { TextH3(attraction.categoria.descricao) },
+                title = { TextH3(attractionName) },
                 backgroundColor = Background,
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
@@ -76,53 +92,28 @@ fun AttractionView(navController: NavHostController,
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.Start
         ) {
-            ImageHeader(attraction.imagens.firstOrNull()?.caminho ?: "")
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = Metrics.Margins.large),
-                horizontalAlignment = Alignment.Start
-            ) {
-                VerticalSpacers.Large()
+            when (attractionState) {
+                is ComponentState.Idle, ComponentState.Loading -> {}
+                is ComponentState.Error -> {}
+                is ComponentState.Loaded<*> -> {
+                    ((attractionState as ComponentState.Loaded<*>).data as AttractionState).also { state ->
+                        attractionName = state.attraction.nome
+                        ImageHeader(state.attraction.imagens.firstOrNull()?.caminho ?: "")
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(horizontal = Metrics.Margins.large),
+                            horizontalAlignment = Alignment.Start
+                        ) {
+                            VerticalSpacers.Large()
 
-                Header(attraction, navController)
+                            Header(state.attraction, state.rating, state.reviewsCount, viewModel::onEvent)
 
-                VerticalSpacers.Default()
+                            VerticalSpacers.Default()
 
-                var selectedTab by remember { mutableStateOf(0) }
-                val tabs = listOf("Detalhes", "Avaliações")
-
-                ScrollableTabRow(
-                    selectedTabIndex = selectedTab,
-                    backgroundColor = Color.Transparent,
-                    edgePadding = 0.dp,
-                    indicator = { tabPositions ->
-                        TabRowDefaults.Indicator(
-                            modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
-                            color = Blue
-                        )
+                            TabSection(state, viewModel::onEvent)
+                        }
                     }
-                ) {
-                    tabs.forEachIndexed { index, title ->
-                        Tab(
-                            selected = selectedTab == index,
-                            onClick = { selectedTab = index },
-                            text = {
-                                Text(
-                                    text = title,
-                                    color = if (selectedTab == index) Blue else Gray,
-                                    style = MaterialTheme.typography.body2
-                                )
-                            }
-                        )
-                    }
-                }
-
-                VerticalSpacers.Large()
-
-                when (selectedTab) {
-                    0 -> DetailTabSection()
-                    1 -> ReviewTabSection()
                 }
             }
         }
@@ -144,18 +135,24 @@ fun ImageHeader(imageUrl: String) {
                     bottomEnd = Metrics.RoundCorners.large
                 )
             )
+            .background(Gray)
     )
 }
 
 @Composable
-fun Header(attraction: Attraction, navController: NavHostController) {
+fun Header(
+    attraction: Attraction,
+    rating: Double,
+    reviewsCount: Int,
+    onEvent: (AttractionEvent) -> Unit
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
     TextH1(attraction?.nome ?: "Atração")
-        IconButton(onClick = { navController.navigate("Complaint") }) {
+        IconButton(onClick = { onEvent(AttractionEvent.OnAttractionComplaintClick) }) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_alert),
                 contentDescription = "Favorite",
@@ -177,7 +174,7 @@ fun Header(attraction: Attraction, navController: NavHostController) {
             contentDescription = "Star Icon",
             tint = Color.Unspecified)
         HorizontalSpacers.Small()
-        TextBody2("${1.0} (135 avaliações)")
+        TextBody2((String.format("%.1f", rating) + " (${reviewsCount} avaliações)"))
 
         HorizontalSpacers.Default()
 
@@ -190,28 +187,76 @@ fun Header(attraction: Attraction, navController: NavHostController) {
 }
 
 @Composable
-fun DetailTabSection() {
+fun TabSection(
+    state: AttractionState,
+    onEvent: (AttractionEvent) -> Unit
+) {
+    var selectedTab by remember { mutableStateOf(0) }
+    val tabs = listOf("Detalhes", "Avaliações")
+
+    ScrollableTabRow(
+        selectedTabIndex = selectedTab,
+        backgroundColor = Color.Transparent,
+        edgePadding = 0.dp,
+        indicator = { tabPositions ->
+            TabRowDefaults.Indicator(
+                modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
+                color = Blue
+            )
+        }
+    ) {
+        tabs.forEachIndexed { index, title ->
+            Tab(
+                selected = selectedTab == index,
+                onClick = { selectedTab = index },
+                text = {
+                    Text(
+                        text = title,
+                        color = if (selectedTab == index) Blue else Gray,
+                        style = MaterialTheme.typography.body2
+                    )
+                }
+            )
+        }
+    }
+
+    VerticalSpacers.Large()
+
+    when (selectedTab) {
+        0 -> DetailTabSection(state, onEvent)
+        1 -> ReviewTabSection(state.reviews, state.rating, state.reviewsCount, state.attraction.nome, onEvent)
+    }
+}
+
+@Composable
+fun DetailTabSection(
+    state: AttractionState,
+    onEvent: (AttractionEvent) -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize(),
         horizontalAlignment = Alignment.Start
     ) {
-        ItinerarySection()
+        ItinerarySection(state.itineraries, onEvent)
 
         VerticalSpacers.Large()
 
-        AboutAttraction()
+        AboutAttraction(state.attraction)
 
         VerticalSpacers.Large()
 
-        Offers()
+        Offers(state.offers, onEvent)
 
         VerticalSpacers.Large()
     }
 }
 
 @Composable
-fun ItinerarySection() {
+fun ItinerarySection(
+    itineraries: List<Itinerary>,
+    onEvent: (AttractionEvent) -> Unit
+) {
     Box(
         modifier = Modifier
             .shadow(
@@ -227,7 +272,7 @@ fun ItinerarySection() {
             TextH2("Adicionar ao Roteiro")
             VerticalSpacers.Small()
 
-            val optionsList = listOf("Option 1", "Option 2", "Option 3")
+            val optionsList = itineraries.map { it.titulo }
             var selectedOption by remember { mutableStateOf<String?>(null) }
 
             OutlinedDropdownMenu(
@@ -243,8 +288,8 @@ fun ItinerarySection() {
 }
 
 @Composable
-fun AboutAttraction() {
-    TextH2("Sobre o Mana Poke")
+fun AboutAttraction(attraction: Attraction) {
+    TextH2("Sobre o ${attraction.nome}")
     VerticalSpacers.Default()
     Box(
         modifier = Modifier
@@ -257,40 +302,36 @@ fun AboutAttraction() {
             .background(White)
             .padding(Metrics.Margins.default),
     ) {
-        TextBody1("Conheça o Mana Poke No MANA POKE, poke não é apenas um prato típico havaiano, mas é, além disso, sinônimo de alimentação nutritiva e agradável.")
+        TextBody1(attraction.descricao)
     }
 }
 
 @Composable
-fun Offers() {
+fun Offers(
+    offers: List<Offer>,
+    onEvent: (AttractionEvent) -> Unit
+) {
+    if (offers.isEmpty()) return
+
     TextH2("Ofertas")
 
     VerticalSpacers.Default()
-
-    val offers = listOf(
-        Offer("Poke Viagem", "R\$65", "Disponível até 12/03", "https://static.vecteezy.com/ti/fotos-gratis/t2/41436456-ai-gerado-cinematografico-imagem-do-uma-leao-dentro-uma-natureza-panorama-foto.jpg"),
-    )
-
 
     Column(
         verticalArrangement = Arrangement.spacedBy(Metrics.Margins.large)
     ) {
         offers.forEach {
-            OfferCard(it)
+            OfferCard(it, onEvent)
         }
     }
 
 }
 
-data class Offer(
-    val title: String,
-    val price: String,
-    val disponibility: String,
-    val imageUrl: String
-)
-
 @Composable
-fun OfferCard(offer: Offer) {
+fun OfferCard(
+    offer: Offer,
+    onEvent: (AttractionEvent) -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -301,8 +342,8 @@ fun OfferCard(offer: Offer) {
     ) {
         Row {
             AsyncImage(
-                model = offer.imageUrl,
-                contentDescription = offer.title,
+                model = "",
+                contentDescription = offer.titulo,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(106.dp)
@@ -320,12 +361,17 @@ fun OfferCard(offer: Offer) {
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        TextH5(offer.title)
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_alert),
-                            contentDescription = "Favorite",
-                            tint = Color.Unspecified
-                        )
+                        TextH5(offer.titulo)
+                        IconButton(
+                            onClick = { onEvent(AttractionEvent.OnOfferComplaintClick(offer.id, offer.titulo)) },
+                            modifier = Modifier.size(Metrics.Margins.large)
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_alert),
+                                contentDescription = "Favorite",
+                                tint = Color.Unspecified
+                            )
+                        }
                     }
 
                     VerticalSpacers.Small()
@@ -335,8 +381,8 @@ fun OfferCard(offer: Offer) {
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        TextBody2(offer.price)
-                        TextBody2(offer.disponibility)
+                        TextBody2(("R$" + String.format("%.2f", offer.preco)))
+                        TextBody2(offer.dataFim)
                     }
                 }
             }
@@ -345,64 +391,62 @@ fun OfferCard(offer: Offer) {
 }
 
 @Composable
-fun ReviewTabSection() {
+fun ReviewTabSection(
+    reviews: List<Review>,
+    rating: Double,
+    reviewsCount: Int,
+    attractionName: String,
+    onEvent: (AttractionEvent) -> Unit
+) {
     Column {
-        AttractionRating()
+        AttractionRating(rating, reviewsCount)
 
         VerticalSpacers.Large()
 
-        PublicReviews()
+        PublicReviews(reviews, onEvent)
 
         VerticalSpacers.Large()
 
-        LeaveReview()
+        LeaveReview(attractionName, onEvent)
 
         VerticalSpacers.Large()
     }
 }
 
 @Composable
-fun AttractionRating() {
+fun AttractionRating(rating: Double, reviewsCount: Int) {
     Column {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            TextH1("5.0")
+            TextH1(String.format("%.1f", rating))
             HorizontalSpacers.Micro()
-            TextBody2("(135 avaliações)")
+            TextBody2("(${reviewsCount} avaliações)")
         }
 
         VerticalSpacers.Small()
 
-        RatingBar(5.0.toFloat())
+        RatingBar(rating.toFloat())
     }
 }
 
-data class Review(
-    val name: String,
-    val date: String,
-    val rating: Float,
-    val description: String,
-    val imageUrl: String
-)
-
 @Composable
-fun PublicReviews() {
-    val reviews = listOf(
-        Review("Gabriel Wagnitz", "21 Jan", 5.0.toFloat(), "Gostei muito da comida, ingredientes muito frescos", "https://static.vecteezy.com/ti/fotos-gratis/t2/41436456-ai-gerado-cinematografico-imagem-do-uma-leao-dentro-uma-natureza-panorama-foto.jpg"),
-        Review("Gabriel Wagnitz", "21 Jan", 5.0.toFloat(), "Gostei muito da comida, ingredientes muito frescos", "https://static.vecteezy.com/ti/fotos-gratis/t2/41436456-ai-gerado-cinematografico-imagem-do-uma-leao-dentro-uma-natureza-panorama-foto.jpg")
-    )
-
-
+fun PublicReviews(
+    reviews: List<Review>,
+    onEvent: (AttractionEvent) -> Unit
+) {
     Column(
         verticalArrangement = Arrangement.spacedBy(Metrics.Margins.large)
     ) {
         reviews.forEach {
-            ReviewCard(it)
+            ReviewCard(it, onEvent)
         }
     }
 }
 
 @Composable
-fun ReviewCard(review: Review) {
+fun ReviewCard(
+    review: Review,
+    onEvent: (AttractionEvent) -> Unit
+) {
     Column(
         modifier = Modifier
             .shadow(
@@ -417,8 +461,8 @@ fun ReviewCard(review: Review) {
         Row {
 
             AsyncImage(
-                model = review.imageUrl,
-                contentDescription = review.name,
+                model = review.user.avatar ?: "",
+                contentDescription = review.user.username,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(42.dp)
@@ -434,29 +478,34 @@ fun ReviewCard(review: Review) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
-                    TextH4(review.name)
-                    TextBody2(review.date)
+                    TextH4(review.user.username)
+                    TextBody2(review.createdAt)
                 }
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_alert),
-                    contentDescription = "Report Review",
-                    tint = Color.Unspecified
-                )
+                IconButton(onClick = { onEvent(AttractionEvent.OnReviewComplaintClick(review.id, review.user.username)) }) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_alert),
+                        contentDescription = "Report Review",
+                        tint = Color.Unspecified
+                    )
+                }
             }
         }
 
         VerticalSpacers.Small()
 
-        RatingBar(review.rating.toFloat(), starSize = 24)
+        RatingBar(review.nota.toFloat(), starSize = 24)
 
         VerticalSpacers.Small()
 
-        TextBody1(review.description)
+        TextBody1(review.comentario ?: "")
     }
 }
 
 @Composable
-fun LeaveReview() {
+fun LeaveReview(
+    attractionName: String,
+    onEvent: (AttractionEvent) -> Unit
+) {
     Column {
         TextH2("Avalie Mana Poke")
 
