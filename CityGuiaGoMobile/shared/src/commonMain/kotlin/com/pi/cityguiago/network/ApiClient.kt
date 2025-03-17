@@ -54,7 +54,10 @@ class ApiClient(engine: HttpClientEngine) {
 
     suspend inline fun <reified T> get(url: String, headers: Map<String, String> = emptyMap()): T {
         val response = client.get(url) {
-            authToken?.let { header(HttpHeaders.Authorization, "Bearer $it") }
+            authToken?.let { header(HttpHeaders.Authorization, "Token $it")
+
+                println("TOKEN ${HttpHeaders.Authorization}: Token $it")
+            }
             headers.forEach { (key, value) -> header(key, value) }
         }
 
@@ -67,7 +70,7 @@ class ApiClient(engine: HttpClientEngine) {
     suspend inline fun <reified T> post(url: String, body: Any, headers: Map<String, String> = emptyMap()): T {
         val response = client.post(url) {
             contentType(ContentType.Application.Json)
-            authToken?.let { header(HttpHeaders.Authorization, "Bearer $it") }
+            authToken?.let { header(HttpHeaders.Authorization, "Token $it") }
             headers.forEach { (key, value) -> header(key, value) }
             setBody(body)
         }.body<T>()

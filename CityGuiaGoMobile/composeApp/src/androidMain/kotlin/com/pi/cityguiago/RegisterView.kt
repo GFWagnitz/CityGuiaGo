@@ -18,6 +18,7 @@ import com.pi.cityguiago.designsystem.*
 import com.pi.cityguiago.designsystem.components.PrimaryButton
 import com.pi.cityguiago.designsystem.components.TextFieldWithTitle
 import com.pi.cityguiago.network.PrefCacheManager
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -27,7 +28,8 @@ fun RegisterView(
     viewModel: RegisterViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
-    var fullName by remember { mutableStateOf("") }
+    val scope = rememberCoroutineScope()
+    var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
@@ -35,7 +37,12 @@ fun RegisterView(
     LaunchedEffect(viewModel) {
         viewModel.effects.collect {
             when (it) {
-                is RegisterEffect.RegisterSuccess -> navController.navigate("home")
+                is RegisterEffect.RegisterSuccess -> {
+                    scope.launch {
+                        store.saveUser(it.user)
+                        navController.navigate("home")
+                    }
+                }
                 is RegisterEffect.ShowErrorMessage -> {
                     Toast.makeText(context, it.errorMessage, Toast.LENGTH_LONG).show()
                 }
@@ -58,10 +65,10 @@ fun RegisterView(
         Spacer(modifier = Modifier.height(Metrics.Margins.huge))
 
         TextFieldWithTitle(
-            title = "Qual o seu nome completo?",
-            placeholder = "Nome completo aqui",
-            text = fullName,
-            onTextChanged = { fullName = it }
+            title = "Qual será o seu username?",
+            placeholder = "Username aqui",
+            text = username,
+            onTextChanged = { username = it }
         )
         Spacer(modifier = Modifier.height(Metrics.Margins.default))
 
@@ -94,7 +101,7 @@ fun RegisterView(
 
         PrimaryButton(
             text = "Cadastrar",
-            onClick = { viewModel.onEvent(RegisterEvent.Register(fullName, email, password, confirmPassword) )}
+            onClick = { viewModel.onEvent(RegisterEvent.Register(username, email, password, confirmPassword) )}
         )
 
         Spacer(modifier = Modifier.height(Metrics.Margins.small))

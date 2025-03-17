@@ -16,19 +16,19 @@ class ExploreViewModel() : ViewModel() {
 
     fun onEvent(event: ExploreEvent) {
         when (event) {
-            is ExploreEvent.OpenAttractionView -> openAttractionView()
+            is ExploreEvent.OnAttractionClick -> openAttractionView(event.attractionId)
         }
     }
 
-    private fun openAttractionView() {
-        _effects.trySend(ExploreEffect.OpenAttractionView)
+    private fun openAttractionView(attractionId: String) {
+        _effects.trySend(ExploreEffect.OpenAttractionView(attractionId))
     }
 }
 
 sealed class ExploreEffect {
-    object OpenAttractionView : ExploreEffect()
+    data class OpenAttractionView(val attractionId: String) : ExploreEffect()
 }
 
 sealed class ExploreEvent {
-    object OpenAttractionView : ExploreEvent()
+    data class OnAttractionClick(val attractionId: String) : ExploreEvent()
 }

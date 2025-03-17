@@ -39,8 +39,7 @@ fun ExploreView(
         viewModel.effects.collect { effect ->
             when (effect) {
                 is ExploreEffect.OpenAttractionView -> {
-                    val attractionId = "123"
-                    navController.navigate("attraction/$attractionId")
+                    navController.navigate("attraction/${effect.attractionId}")
                 }
             }
         }
@@ -74,8 +73,8 @@ fun ExploreView(
                 icon = painterResource(id = R.drawable.ic_search)
             )
             VerticalSpacers.Default()
-            Attractions(navController, attractions, searchQuery) {
-                viewModel.onEvent(ExploreEvent.OpenAttractionView)
+            Attractions(attractions, searchQuery) { attraction ->
+                viewModel.onEvent(ExploreEvent.OnAttractionClick(attraction.id))
             }
             VerticalSpacers.Large()
         }

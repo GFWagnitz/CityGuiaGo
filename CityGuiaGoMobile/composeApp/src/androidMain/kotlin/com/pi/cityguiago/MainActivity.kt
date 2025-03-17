@@ -17,6 +17,8 @@ import com.pi.cityguiago.network.createDataStore
 import androidx.compose.runtime.remember
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import com.pi.cityguiago.model.Complaint
+import kotlinx.serialization.json.Json
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,7 +48,7 @@ fun NavigationGraph(store: PrefCacheManager) {
 
     NavHost(
         navController = navController,
-        startDestination = "home"
+        startDestination = "login"
     ) {
         composable("login") {
             LoginView(navController, store)
@@ -69,8 +71,16 @@ fun NavigationGraph(store: PrefCacheManager) {
             val attractionId = backStackEntry.arguments?.getString("attractionId") ?: ""
             AttractionView(navController, attractionId)
         }
-        composable("complaint") {
-            ComplaintView(navController)
-        }
+        composable(
+            "complaint/{complaintData}",
+        arguments = listOf(
+            navArgument("complaintData") { type = NavType.StringType }
+        )
+        ) { backStackEntry ->
+        val complaintJson = backStackEntry.arguments?.getString("complaintData") ?: ""
+        val complaint = Json.decodeFromString<Complaint>(complaintJson)
+
+        ComplaintView(navController, complaint)
+    }
     }
 }

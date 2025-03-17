@@ -3,7 +3,7 @@ package com.pi.cityguiago.module.Register
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pi.cityguiago.ComponentState
-import com.pi.cityguiago.module.Login.LoginEffect
+import com.pi.cityguiago.model.AuthResponse
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,12 +21,12 @@ class RegisterViewModel(
 
     fun onEvent(event: RegisterEvent) {
         when (event) {
-            is RegisterEvent.Register -> register(event.name, event.email, event.password, event.passwordConfirmation)
+            is RegisterEvent.Register -> register(event.username, event.email, event.password, event.passwordConfirmation)
         }
     }
 
-    fun register(name: String, email: String, password: String, passwordConfirmation: String) {
-        if (!checkRegisterData(name, email, password, passwordConfirmation)) {
+    fun register(username: String, email: String, password: String, passwordConfirmation: String) {
+        if (!checkRegisterData(username, email, password, passwordConfirmation)) {
             _effects.trySend(RegisterEffect.ShowErrorMessage("Missing Data"))
             return
         }
@@ -39,10 +39,10 @@ class RegisterViewModel(
         viewModelScope.launch {
             _state.value = ComponentState.Loading
 
-            val result = registerService.register(name, email, password)
+            val result = registerService.register(username, email, password)
 
             result.fold(
-                onSuccess = { _effects.trySend(RegisterEffect.RegisterSuccess) },
+                onSuccess = { _effects.trySend(RegisterEffect.RegisterSuccess(it)) },
                 onFailure = {
                     _effects.trySend(RegisterEffect.ShowErrorMessage("Invalid credentials"))
                     ComponentState.Error("Invalid credentials")
@@ -51,8 +51,8 @@ class RegisterViewModel(
         }
     }
 
-    private fun checkRegisterData(name: String, email: String, password: String, passwordConfirmation:String): Boolean {
-        return name.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty() && passwordConfirmation.isNotEmpty()
+    private fun checkRegisterData(username: String, email: String, password: String, passwordConfirmation:String): Boolean {
+        return username.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty() && passwordConfirmation.isNotEmpty()
     }
 
     private fun checkPassword(password: String, passwordConfirmation:String): Boolean {
@@ -62,9 +62,9 @@ class RegisterViewModel(
 
 sealed class RegisterEffect {
     data class ShowErrorMessage(val errorMessage: String?) : RegisterEffect()
-    object RegisterSuccess : RegisterEffect()
+    data class RegisterSuccess(val user: AuthResponse) : RegisterEffect()
 }
 
 sealed class RegisterEvent {
-    data class Register(val name: String, val email: String, val password: String, val passwordConfirmation: String) : RegisterEvent()
+    data class Register(val username: String, val email: String, val password: String, val passwordConfirmation: String) : RegisterEvent()
 }

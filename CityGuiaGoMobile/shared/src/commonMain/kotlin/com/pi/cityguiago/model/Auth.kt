@@ -4,13 +4,13 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class LoginRequest(
-    val email: String,
+    val username: String,
     val password: String
 )
 
 @Serializable
 data class SignupRequest(
-    val nome: String,
+    val username: String,
     val email: String,
     val password: String
 )

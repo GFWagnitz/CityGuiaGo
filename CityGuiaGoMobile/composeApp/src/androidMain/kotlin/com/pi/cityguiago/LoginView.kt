@@ -31,7 +31,7 @@ fun LoginView(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    var email by remember { mutableStateOf("") }
+    var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
     LaunchedEffect(viewModel) {
@@ -72,10 +72,10 @@ fun LoginView(
 
         Column(modifier = Modifier.fillMaxWidth()) {
             TextFieldWithTitle(
-                title = "Email",
-                placeholder = "Digite seu email",
-                text = email,
-                onTextChanged = { email = it }
+                title = "Username",
+                placeholder = "Digite seu username",
+                text = username,
+                onTextChanged = { username = it }
             )
             Spacer(modifier = Modifier.height(Metrics.Margins.default))
             TextFieldWithTitle(
@@ -91,7 +91,7 @@ fun LoginView(
 
         PrimaryButton(
             text = "Entrar",
-            onClick = { viewModel.onEvent(LoginEvent.Login(email, password)) },
+            onClick = { viewModel.onEvent(LoginEvent.Login(username, password)) },
             icon = painterResource(id = R.drawable.ic_arrow_right)
         )
 
