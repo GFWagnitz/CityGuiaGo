@@ -46,7 +46,7 @@ import org.koin.androidx.compose.koinViewModel
 fun AttractionView(
     navController: NavHostController,
     attractionId: String,
-    viewModel: AttractionViewModel = koinViewModel()
+    viewModel: AttractionViewModel = koinViewModel(key = "AttractionViewModel-${attractionId}")
 ) {
     val context = LocalContext.current
 
