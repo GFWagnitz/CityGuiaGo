@@ -93,12 +93,20 @@ class AtracaoList(generics.ListAPIView):
     queryset = Atracoes.objects.all()
     serializer_class = AtracoesSerializer
     permission_classes = [AllowAny]
+    
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        return context
 
 class AtracaoDetail(generics.RetrieveAPIView):
     queryset = Atracoes.objects.all()
     serializer_class = AtracoesSerializer
     permission_classes = [AllowAny]
     lookup_field = 'id'
+    
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        return context
 
 class RoteiroList(generics.ListCreateAPIView):
     serializer_class = RoteirosSerializer
@@ -253,48 +261,106 @@ class ImagemDetail(generics.RetrieveAPIView):
 @staff_member_required
 def import_atracoes_view(request):
     if request.method == 'POST':
-        form = ImportAtracoesForm(request.POST, request.FILES)
-        if form.is_valid():
-            # Process the form
-            csv_file = request.FILES['csv_file']
-            images_zip = request.FILES['images_zip']
-            encoding = form.cleaned_data.get('encoding') or 'utf-8'
-            delimiter = form.cleaned_data.get('delimiter') or ','
-            skip_header = form.cleaned_data.get('skip_header')
-            user = form.cleaned_data.get('user')
-            
-            # Create temporary directory for extracted files
-            with tempfile.TemporaryDirectory() as temp_dir:
-                # Save CSV file
-                csv_file_path = os.path.join(temp_dir, 'import.csv')
-                with open(csv_file_path, 'wb') as f:
-                    for chunk in csv_file.chunks():
-                        f.write(chunk)
+        try:
+            form = ImportAtracoesForm(request.POST, request.FILES)
+            if form.is_valid():
+                # Process the form
+                csv_file = request.FILES['csv_file']
+                images_zip = request.FILES['images_zip']
+                encoding = form.cleaned_data.get('encoding') or 'utf-8'
+                delimiter = form.cleaned_data.get('delimiter') or ','
+                skip_header = form.cleaned_data.get('skip_header')
+                user = form.cleaned_data.get('user')
                 
-                # Extract ZIP file
-                images_folder = os.path.join(temp_dir, 'images')
-                os.makedirs(images_folder, exist_ok=True)
+                # Check file sizes
+                max_csv_size = 10 * 1024 * 1024  # 10MB
+                max_zip_size = 100 * 1024 * 1024  # 100MB
                 
-                with zipfile.ZipFile(images_zip) as zip_ref:
-                    zip_ref.extractall(images_folder)
+                if csv_file.size > max_csv_size:
+                    messages.error(request, f"CSV file is too large. Maximum size is {max_csv_size/1024/1024}MB.")
+                    return render(request, 'admin/core/import_atracoes.html', {'form': form})
                 
-                # Run import command
-                import_command = Command()
-                options = {
-                    'csv_file': csv_file_path,
-                    'images_folder': images_folder,
-                    'user': user.username if user else None,
-                    'encoding': encoding,
-                    'delimiter': delimiter,
-                    'skip_header': skip_header,
-                }
+                if images_zip.size > max_zip_size:
+                    messages.error(request, f"ZIP file is too large. Maximum size is {max_zip_size/1024/1024}MB.")
+                    return render(request, 'admin/core/import_atracoes.html', {'form': form})
                 
-                try:
-                    import_command.handle(**options)
-                    messages.success(request, "Attractions imported successfully.")
-                    return redirect('admin:core_atracoes_changelist')
-                except Exception as e:
-                    messages.error(request, f"Error importing attractions: {str(e)}")
+                # Create temporary directory for extracted files
+                with tempfile.TemporaryDirectory() as temp_dir:
+                    try:
+                        # Save CSV file
+                        csv_file_path = os.path.join(temp_dir, 'import.csv')
+                        with open(csv_file_path, 'wb') as f:
+                            for chunk in csv_file.chunks():
+                                f.write(chunk)
+                        
+                        # Extract ZIP file
+                        images_folder = os.path.join(temp_dir, 'images')
+                        os.makedirs(images_folder, exist_ok=True)
+                        
+                        try:
+                            with zipfile.ZipFile(images_zip) as zip_ref:
+                                # Check for zip bombs and oversized files
+                                total_size = sum(info.file_size for info in zip_ref.infolist())
+                                if total_size > max_zip_size * 2:  # Sanity check for decompression
+                                    messages.error(request, "ZIP file contents are too large when extracted.")
+                                    return render(request, 'admin/core/import_atracoes.html', {'form': form})
+                                
+                                # Extract only image files
+                                allowed_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp']
+                                for file_info in zip_ref.infolist():
+                                    # Skip directories
+                                    if file_info.filename.endswith('/'):
+                                        continue
+                                    
+                                    # Check if the file is an image
+                                    extension = os.path.splitext(file_info.filename)[1].lower()
+                                    if extension in allowed_extensions:
+                                        # Extract only the filename, not the path
+                                        filename = os.path.basename(file_info.filename)
+                                        source = zip_ref.open(file_info)
+                                        target = open(os.path.join(images_folder, filename), "wb")
+                                        with source, target:
+                                            target.write(source.read())
+                        except zipfile.BadZipFile:
+                            messages.error(request, "The uploaded file is not a valid ZIP file.")
+                            return render(request, 'admin/core/import_atracoes.html', {'form': form})
+                        
+                        # Check if the images directory is not empty
+                        if not os.listdir(images_folder):
+                            messages.warning(request, "Warning: The ZIP file did not contain any valid image files.")
+                        
+                        # Run import command with a smaller batch size to prevent timeout
+                        import_command = Command()
+                        options = {
+                            'csv_file': csv_file_path,
+                            'images_folder': images_folder,
+                            'user': user.username if user else None,
+                            'encoding': encoding,
+                            'delimiter': delimiter,
+                            'skip_header': skip_header,
+                        }
+                        
+                        try:
+                            import_command.handle(**options)
+                            messages.success(request, "Attractions imported successfully.")
+                            return redirect('admin:core_atracoes_changelist')
+                        except Exception as e:
+                            messages.error(request, f"Error importing attractions: {str(e)}")
+                            import traceback
+                            error_details = traceback.format_exc()
+                            messages.error(request, f"Error details: {error_details}")
+                    except Exception as e:
+                        messages.error(request, f"Error processing files: {str(e)}")
+            else:
+                # Form is not valid, display errors
+                for field, errors in form.errors.items():
+                    for error in errors:
+                        messages.error(request, f"Error in {field}: {error}")
+        except Exception as e:
+            messages.error(request, f"Unexpected error: {str(e)}")
+            import traceback
+            error_details = traceback.format_exc()
+            messages.error(request, f"Error details: {error_details}")
     else:
         form = ImportAtracoesForm()
     

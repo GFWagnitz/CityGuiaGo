@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
 import uuid
+import os
 
 class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -191,10 +192,19 @@ class Denuncias(models.Model):
         verbose_name = "Denúncia"
         verbose_name_plural = "Denúncias"
 
+def atracao_image_path(instance, filename):
+    """Generate path for attraction images"""
+    # Get the file extension
+    ext = filename.split('.')[-1]
+    # Generate filename as random UUID
+    filename = f"{uuid.uuid4()}.{ext}"
+    # Return the path
+    return os.path.join('atracoes', filename)
+
 class Imagens(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    caminho = models.CharField(max_length=255)  # Consider using ImageField or FileField
-    atracao = models.ForeignKey(Atracoes, on_delete=models.CASCADE, null=True, blank=True, related_name='imagens') # Use ForeignKey.  CASCADE.
+    caminho = models.CharField(max_length=255)  # Path to the image file
+    atracao = models.ForeignKey(Atracoes, on_delete=models.CASCADE, null=True, blank=True, related_name='imagens')
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='imagens')
     created_at = models.DateTimeField(default=timezone.now)
 

@@ -4,10 +4,18 @@ from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import authenticate
 
 class ImagensSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+    
     class Meta:
         model = Imagens
-        fields = ['id', 'caminho', 'atracao', 'user', 'created_at']  # Include all fields
-        read_only_fields = ['id', 'created_at']
+        fields = ['id', 'caminho', 'image_url', 'atracao', 'user', 'created_at']
+        read_only_fields = ['id', 'created_at', 'image_url']
+    
+    def get_image_url(self, obj):
+        request = self.context.get('request')
+        if request and obj.caminho:
+            return request.build_absolute_uri(obj.caminho)
+        return obj.caminho
 
 class UserSerializer(serializers.ModelSerializer):
     imagens = ImagensSerializer(many=True, read_only=True) # Nested serializer, read-only
