@@ -12,6 +12,16 @@ from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
 from django.db import models
 from rest_framework import serializers
+import os
+import uuid
+import zipfile
+import tempfile
+from django.shortcuts import render, redirect
+from django.contrib.admin.views.decorators import staff_member_required
+from django.conf import settings
+from django.contrib import messages
+from .forms import ImportAtracoesForm
+from .management.commands.import_atracoes import Command
 
 class SignupView(generics.CreateAPIView):
     serializer_class = UserSerializer
@@ -239,3 +249,53 @@ class ImagemDetail(generics.RetrieveAPIView):
     serializer_class = ImagensSerializer
     permission_classes = [AllowAny]
     lookup_field = 'id'
+
+@staff_member_required
+def import_atracoes_view(request):
+    if request.method == 'POST':
+        form = ImportAtracoesForm(request.POST, request.FILES)
+        if form.is_valid():
+            # Process the form
+            csv_file = request.FILES['csv_file']
+            images_zip = request.FILES['images_zip']
+            encoding = form.cleaned_data.get('encoding') or 'utf-8'
+            delimiter = form.cleaned_data.get('delimiter') or ','
+            skip_header = form.cleaned_data.get('skip_header')
+            user = form.cleaned_data.get('user')
+            
+            # Create temporary directory for extracted files
+            with tempfile.TemporaryDirectory() as temp_dir:
+                # Save CSV file
+                csv_file_path = os.path.join(temp_dir, 'import.csv')
+                with open(csv_file_path, 'wb') as f:
+                    for chunk in csv_file.chunks():
+                        f.write(chunk)
+                
+                # Extract ZIP file
+                images_folder = os.path.join(temp_dir, 'images')
+                os.makedirs(images_folder, exist_ok=True)
+                
+                with zipfile.ZipFile(images_zip) as zip_ref:
+                    zip_ref.extractall(images_folder)
+                
+                # Run import command
+                import_command = Command()
+                options = {
+                    'csv_file': csv_file_path,
+                    'images_folder': images_folder,
+                    'user': user.username if user else None,
+                    'encoding': encoding,
+                    'delimiter': delimiter,
+                    'skip_header': skip_header,
+                }
+                
+                try:
+                    import_command.handle(**options)
+                    messages.success(request, "Attractions imported successfully.")
+                    return redirect('admin:core_atracoes_changelist')
+                except Exception as e:
+                    messages.error(request, f"Error importing attractions: {str(e)}")
+    else:
+        form = ImportAtracoesForm()
+    
+    return render(request, 'admin/core/import_atracoes.html', {'form': form})

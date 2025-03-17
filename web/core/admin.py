@@ -1,6 +1,10 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from .models import User, Categorias, Atracoes, Roteiros, Avaliacoes, Ofertas, Denuncias, Imagens, RoteiroAtracao
+from django.urls import path
+from django.urls import reverse
+from django.utils.html import format_html
+from .views import import_atracoes_view
 
 # Inline models for nested representation in the admin
 
@@ -92,6 +96,18 @@ class AtracoesAdmin(admin.ModelAdmin):
 
         })
     )
+    
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path('import-atracoes/', import_atracoes_view, name='import_atracoes'),
+        ]
+        return custom_urls + urls
+    
+    def changelist_view(self, request, extra_context=None):
+        extra_context = extra_context or {}
+        extra_context['import_url'] = reverse('admin:import_atracoes')
+        return super().changelist_view(request, extra_context=extra_context)
 
 
 @admin.register(Roteiros)
