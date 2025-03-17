@@ -39,6 +39,8 @@ kotlin {
             implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.13") // JSON Support
             implementation("io.ktor:ktor-client-logging:2.3.13")// Logging
 
+            implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
+
             api(libs.datastore.preferences)
             api(libs.datastore)
 

@@ -62,6 +62,9 @@ fun NavigationGraph(store: PrefCacheManager) {
         composable("explore") {
             ExploreView(navController)
         }
+        composable("itineraries") {
+            ItinerariesView(navController)
+        }
         composable(
             "attraction/{attractionId}",
             arguments = listOf(

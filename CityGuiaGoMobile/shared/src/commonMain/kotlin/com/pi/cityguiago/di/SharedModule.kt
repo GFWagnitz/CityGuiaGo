@@ -1,6 +1,8 @@
 package com.pi.cityguiago.di
 
 import com.pi.cityguiago.module.Attraction.AttractionService
+import com.pi.cityguiago.module.Itinerary.ItineraryService
+import com.pi.cityguiago.module.Itinerary.ItineraryViewModel
 import com.pi.cityguiago.module.Login.LoginService
 import com.pi.cityguiago.module.Login.LoginViewModel
 import com.pi.cityguiago.module.Register.RegisterService
@@ -25,4 +27,6 @@ fun sharedModule(engine: HttpClientEngine): Module = module {
     single { ExploreViewModel() }
     single { AttractionService(get()) }
     single { AttractionViewModel(get()) }
+    single { ItineraryService(get()) }
+    single { ItineraryViewModel(get()) }
 } 

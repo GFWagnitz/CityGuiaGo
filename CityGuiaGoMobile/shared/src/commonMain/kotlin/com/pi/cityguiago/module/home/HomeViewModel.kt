@@ -31,10 +31,10 @@ class HomeViewModel(
         when (event) {
             is HomeEvent.LoadData -> loadData()
             is HomeEvent.OnAttractionClick -> openAttractionView(event.attractionId)
-            is HomeEvent.OnItineraryClick -> TODO()
+            is HomeEvent.OnItineraryClick -> openItinerariesView()
             is HomeEvent.OnSeachBarClick -> openExploreView()
-            is HomeEvent.OnFavoriteButtonClick -> TODO()
-            is HomeEvent.OnItineraryListButtonClick -> TODO()
+            is HomeEvent.OnFavoriteButtonClick -> openItinerariesView()
+            is HomeEvent.OnItineraryListButtonClick -> openItinerariesView()
         }
     }
 
@@ -96,12 +96,17 @@ class HomeViewModel(
             _effects.trySend(HomeEffect.OpenExploreView(it.attractions))
         }
     }
+
+    private fun openItinerariesView() {
+        _effects.trySend(HomeEffect.OpenItinerariesView)
+    }
 }
 
 sealed class HomeEffect {
     data class ShowErrorMessage(val errorMessage: String?) : HomeEffect()
     data class OpenAttractionView(val attractionId: String) : HomeEffect()
     data class OpenExploreView(val attractions: List<CategoryAttraction>) : HomeEffect()
+    object OpenItinerariesView : HomeEffect()
 }
 
 sealed class HomeEvent {
