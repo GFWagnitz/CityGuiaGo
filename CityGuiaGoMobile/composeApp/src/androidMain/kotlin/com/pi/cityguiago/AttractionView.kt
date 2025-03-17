@@ -98,7 +98,7 @@ fun AttractionView(
                 is ComponentState.Loaded<*> -> {
                     ((attractionState as ComponentState.Loaded<*>).data as AttractionState).also { state ->
                         attractionName = state.attraction.nome
-                        ImageHeader(state.attraction.imagens.firstOrNull()?.caminho ?: "")
+                        ImageHeader(state.attraction.imagens.firstOrNull()?.imageUrl ?: "")
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()

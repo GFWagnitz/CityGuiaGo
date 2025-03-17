@@ -3,6 +3,7 @@ package com.pi.cityguiago.module.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pi.cityguiago.ComponentState
+import com.pi.cityguiago.extension.fixUrl
 import com.pi.cityguiago.model.Attraction
 import com.pi.cityguiago.model.Category
 import com.pi.cityguiago.model.Itinerary
@@ -51,10 +52,20 @@ class HomeViewModel(
                     val itinerariesResult = itinerariesDeferred.await()
 
                     val attractions = attractionsResult.getOrElse { emptyList() }
+                    val fixedAttractions = attractions.map { attraction ->
+                        attraction.copy(
+                            imagens = attraction.imagens.map { image ->
+                                image.copy(
+                                    imageUrl = fixUrl(image.imageUrl)
+                                )
+                            }
+                        )
+                    }
+
                     val itineraries = itinerariesResult.getOrElse { emptyList() }
 
                     _state.value = ComponentState.Loaded(
-                        produceHomeState(attractions, itineraries)
+                        produceHomeState(fixedAttractions, itineraries)
                     )
                 }
             } catch (e: Exception) {

@@ -199,7 +199,7 @@ fun topAttractions(
             state.firstAttraction?.let {
                 topAttractionCard(
                     title = it.nome,
-                    imageUrl = it.imagens.firstOrNull()?.caminho,
+                    imageUrl = it.imagens.firstOrNull()?.imageUrl,
                     number = 1,
                     modifier = Modifier
                         .weight(1f)
@@ -220,7 +220,7 @@ fun topAttractions(
                 state.secondAttraction?.let {
                     topAttractionCard(
                         title = it.nome,
-                        imageUrl = it.imagens.firstOrNull()?.caminho,
+                        imageUrl = it.imagens.firstOrNull()?.imageUrl,
                         number = 2,
                         modifier = Modifier
                             .weight(1f)
@@ -232,7 +232,7 @@ fun topAttractions(
                 state.thirdAttraction?.let {
                     topAttractionCard(
                         title = it.nome,
-                        imageUrl = it.imagens.firstOrNull()?.caminho,
+                        imageUrl = it.imagens.firstOrNull()?.imageUrl,
                         number = 3,
                         modifier = Modifier
                             .weight(1f)
@@ -411,7 +411,7 @@ fun AttractionCard(
                     .background(Gray)
             ) {
                 AsyncImage(
-                    model = attraction.imagens.firstOrNull()?.caminho ?: "",
+                    model = attraction.imagens.firstOrNull()?.imageUrl ?: "",
                     contentDescription = attraction?.nome,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
