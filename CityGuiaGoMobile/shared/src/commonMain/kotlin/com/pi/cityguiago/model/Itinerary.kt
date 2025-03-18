@@ -8,7 +8,17 @@ data class Itinerary(
     val titulo: String,
     val descricao: String,
     val public: Boolean,
-    val duracaoEstimada: String? = null,
+    val duracao: Int? = null,
     val user: User,
-    val categoria: String? = null
+    val categoria: Category? = null,
+    val isFavorite: Boolean = false,
+    val attractions: List<ItineraryAttraction> = emptyList()
+)
+
+@Serializable
+data class ItineraryAttraction(
+    val id: String,
+    val atracao: Attraction,
+    val dia: Int,
+    val ordem: Int
 )

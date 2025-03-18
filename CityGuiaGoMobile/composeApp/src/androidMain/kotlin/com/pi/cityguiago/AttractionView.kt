@@ -507,7 +507,7 @@ fun LeaveReview(
     onEvent: (AttractionEvent) -> Unit
 ) {
     Column {
-        TextH2("Avalie Mana Poke")
+        TextH2("Avalie $attractionName")
 
         VerticalSpacers.Default()
 
@@ -515,7 +515,7 @@ fun LeaveReview(
 
         VerticalSpacers.Default()
 
-        TextEditor("Comente sobre sua experiência com Mana Poke", "") {}
+        TextEditor("Comente sobre sua experiência com $attractionName", "") {}
 
         VerticalSpacers.Default()
 

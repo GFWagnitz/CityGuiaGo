@@ -66,6 +66,15 @@ fun NavigationGraph(store: PrefCacheManager) {
             ItinerariesView(navController)
         }
         composable(
+            "itinerary_details/{itineraryId}",
+            arguments = listOf(
+                navArgument("itineraryId") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val itineraryId = backStackEntry.arguments?.getString("itineraryId") ?: ""
+            ItineraryDetailsView(navController, itineraryId)
+        }
+        composable(
             "attraction/{attractionId}",
             arguments = listOf(
                 navArgument("attractionId") { type = NavType.StringType }
@@ -76,14 +85,14 @@ fun NavigationGraph(store: PrefCacheManager) {
         }
         composable(
             "complaint/{complaintData}",
-        arguments = listOf(
-            navArgument("complaintData") { type = NavType.StringType }
-        )
+            arguments = listOf(
+                navArgument("complaintData") { type = NavType.StringType }
+            )
         ) { backStackEntry ->
-        val complaintJson = backStackEntry.arguments?.getString("complaintData") ?: ""
-        val complaint = Json.decodeFromString<Complaint>(complaintJson)
+            val complaintJson = backStackEntry.arguments?.getString("complaintData") ?: ""
+            val complaint = Json.decodeFromString<Complaint>(complaintJson)
 
-        ComplaintView(navController, complaint)
-    }
+            ComplaintView(navController, complaint)
+        }
     }
 }
