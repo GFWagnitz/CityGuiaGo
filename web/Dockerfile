@@ -13,6 +13,7 @@ apt-get clean
 
 # Create the data directory
 RUN mkdir -p /data && chmod 777 /data
+RUN mkdir -p /media && chmod 777 /media
 
 # Set work directory
 WORKDIR /app
