@@ -1,0 +1,138 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    .form-row {
+        padding: 10px 0;
+        display: flex;
+        flex-direction: column;
+    }
+    .form-row label {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    .help-text {
+        color: #666;
+        font-size: 12px;
+        margin-top: 5px;
+    }
+    .submit-row {
+        margin-top: 20px;
+    }
+    .errorlist {
+        color: #cc0000;
+        font-weight: bold;
+    }
+    .message {
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 4px;
+    }
+    .message.success {
+        background-color: #dff0d8;
+        border: 1px solid #d6e9c6;
+        color: #3c763d;
+    }
+    .message.error {
+        background-color: #f2dede;
+        border: 1px solid #ebccd1;
+        color: #a94442;
+    }
+</style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    &rsaquo; <a href="{% url 'admin:app_list' app_label='core' %}">{% trans 'Core' %}</a>
+    &rsaquo; <a href="{% url 'admin:core_atracoes_changelist' %}">{% trans 'Atracoes' %}</a>
+    &rsaquo; {% trans 'Import Atracoes' %}
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <h1>{% trans "Import Attractions from CSV" %}</h1>
+    
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <div class="module">
+        <div class="form-panel">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                {% if form.errors %}
+                <p class="errornote">
+                    {% blocktrans count form.errors.items|length as counter %}Please correct the error below.{% plural %}Please correct the errors below.{% endblocktrans %}
+                </p>
+                {% endif %}
+                
+                {% for field in form %}
+                <div class="form-row">
+                    <div>
+                        {{ field.label_tag }}
+                        {% if field.errors %}
+                        <ul class="errorlist">
+                            {% for error in field.errors %}
+                            <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                        {{ field }}
+                        {% if field.help_text %}
+                        <p class="help-text">{{ field.help_text }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+                
+                <div class="submit-row">
+                    <input type="submit" value="{% trans 'Import' %}" class="default" />
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="module">
+        <h2>{% trans "CSV Format Instructions" %}</h2>
+        <div style="padding: 10px;">
+            <p>The CSV file should have the following columns in this order:</p>
+            <ol>
+                <li><strong>nome</strong> - Name of the attraction (required)</li>
+                <li><strong>descricao</strong> - Description of the attraction (required)</li>
+                <li><strong>categoria_nome</strong> - Category name (required, will be created if it doesn't exist)</li>
+                <li><strong>horario_funcionamento</strong> - Operating hours/schedule (optional)</li>
+                <li><strong>preco_medio</strong> - Average price (optional)</li>
+                <li><strong>endereco_logradouro</strong> - Street address (optional)</li>
+                <li><strong>endereco_numero</strong> - Street number (optional)</li>
+                <li><strong>endereco_complemento</strong> - Address complement (optional)</li>
+                <li><strong>endereco_bairro</strong> - Neighborhood (optional)</li>
+                <li><strong>endereco_cidade</strong> - City (optional)</li>
+                <li><strong>endereco_estado</strong> - State (optional)</li>
+                <li><strong>endereco_cep</strong> - Postal code (optional)</li>
+                <li><strong>endereco_coordenadas</strong> - Geographic coordinates (optional, format: "latitude,longitude")</li>
+                <li><strong>imagens</strong> - List of image filenames separated by semicolons (optional)</li>
+            </ol>
+            
+            <p><strong>Example:</strong></p>
+            <pre>"Praia de Camburi","Beautiful beach in Vitória","Praias","24 hours","0","Avenida Dante Micheline","","","Jardim da Penha","Vitória","ES","29060-235","-20.2924,-40.2901","camburi1.jpg;camburi2.jpg"</pre>
+            
+            <p><strong>ZIP File Structure:</strong></p>
+            <p>The ZIP file should contain all images referenced in the CSV file. For example, if your CSV contains "camburi1.jpg;camburi2.jpg", 
+            then your ZIP file should include these image files.</p>
+            
+            <p>You can download a <a href="{% url 'admin:index' %}../../atracoes_template.csv">template CSV file</a> to get started.</p>
+        </div>
+    </div>
+</div>
+{% endblock %} 

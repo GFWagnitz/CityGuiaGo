@@ -1,0 +1,508 @@
+\chapter{Definição de Requisitos}
+\label{sec-requisitos}
+\vspace{-1cm}
+
+Esta seção descreve o resultado da atividade de levantamento de requisitos.
+A Subseção~\ref{sec-requisitos-minimundo} descreve o minimundo do sistema e seu propósito, apresentando superficialmente suas principais características. 
+A Subseção~\ref{sec-requisitos-usuario} lista os requisitos de usuário do sistema, na forma de estórias de usuário e requisitos não-funcionais. 
+
+
+
+
+\section{Descrição do Minimundo e do Propósito do Sistema}
+\label{sec-requisitos-minimundo}
+
+Apesar de termos diversos pontos turísticos, muitos visitantes e até moradores de Vitória tem dificuldade em planejar passeios pela cidade. Desse modo, o propósito do sistema é fornecer uma plataforma interativa para facilitar o planejamento de viagens e a exploração de atrações turísticas em Vitória, promovendo experiências personalizadas para os turistas, suporte para estabelecimentos locais e controle administrativo eficiente, garantindo qualidade e segurança no conteúdo.
+
+
+
+\section{Requisitos de Usuário}
+\label{sec-requisitos-usuario}
+
+Com base no contexto do sistema descrito na Seção 2.1, foram identificados os principais stakeholders envolvidos no projeto: turistas que buscam boas atrações, administradores do sistema, equipe de desenvolvimento, gerente de projeto e proprietários de atrações locais. A partir da análise de suas necessidades e expectativas, foram elaboradas as histórias de usuário e definidos os requisitos não-funcionais que sustentam o desenvolvimento do sistema
+
+As estórias de usuário são apresentadas na Tabela~\ref{tbl-requisitos-uss} e os requisitos não-funcionais globais (ou seja, aqueles que não são caracterizados como critérios de aceitação de estórias de usuário específicas) na Tabela~\ref{tbl-requisitos-rnfs}.
+
+% Define contador e identificador para estórias de usuário.
+\newcounter{uscount}
+\renewcommand*\theuscount{US-\arabic{uscount}}
+\newcommand*\US{\refstepcounter{uscount}\theuscount}
+\setcounter{uscount}{0}
+
+% Define uma macro para as linhas de user stories.
+% Usar \userstory{label}{dependências}{prioridade}{descrição}{critérios de qualidade (usando \item)}.
+\newcommand{\userstory}[5]{
+	\\\hline
+	\cellcolor{lightgray}\textbf{ID:} & \US\label{#1} & 
+	\cellcolor{lightgray}\textbf{Depende:} & #2 & 
+	\cellcolor{lightgray}\textbf{Prioridade:} & #3 \\\hline
+	\cellcolor{lightgray}\textbf{Descrição:} & 
+	\multicolumn{5}{|p{12cm}|}{#4}\\\hline
+	\cellcolor{lightgray}\parbox{2.5cm}{\raggedleft \textbf{Critérios de\\Aceitação:}} & 
+	\multicolumn{5}{|p{12cm}|}{
+		\parbox{12cm}{
+			\begin{enumerate}[leftmargin=15mm,label=-- CA\arabic*:]\itemsep-2mm
+				#5
+			\end{enumerate}
+		}		
+	}\\\hline
+	\multicolumn{6}{c}{}
+}
+
+
+\begin{longtable}{|r|p{1.3cm}|r|p{4cm}|r|p{1.3cm}|}
+\caption{Estórias de Usuário.}
+\label{tbl-requisitos-uss}
+
+% User Story 1
+\userstory{us-login-sistema}{}{Alta}
+{Como turista, quero fazer login no sistema com minhas credenciais para acessar minhas informações e funcionalidades personalizadas.}
+{
+\item O sistema deve aceitar email e senha válidos para autenticar o usuário;
+\item O sistema deve exibir uma mensagem de erro para credenciais inválidas;
+\item O login deve redirecionar o usuário para a tela inicial personalizada.
+}
+
+% User Story 2
+\userstory{us-cadastro-usuario}{US-1}{Alta}
+{Como visitante, quero cadastrar um usuário no sistema para poder acessar as funcionalidades disponíveis para turistas.}
+{
+\item O sistema deve permitir o preenchimento de nome, email e senha para cadastro;
+\item O sistema deve verificar se o email informado já está registrado;
+\item O sistema deve exibir uma mensagem de sucesso após o cadastro concluído.
+}
+
+% User Story 3
+\userstory{us-edicao-informacoes-pessoais}{US-1}{Média}
+{Como turista, quero editar minhas informações pessoais para manter meu perfil atualizado.}
+{
+\item O sistema deve permitir a edição de nome, email ou senha;
+\item O sistema deve validar os novos dados antes de salvar;
+\item O sistema deve exibir uma mensagem confirmando a atualização.
+}
+
+% User Story 4
+\userstory{us-visualizacao-informacoes-pessoais}{US-1}{Baixa}
+{Como turista, quero visualizar minhas informações pessoais cadastradas no sistema para verificar ou revisar meus dados.}
+{
+\item O sistema deve exibir as informações cadastradas, como nome e email;
+\item O sistema deve garantir que apenas o usuário autenticado visualize seus dados.
+}
+
+% User Story 5
+\userstory{us-delecao-usuario}{US-1}{Média}
+{Como turista, quero poder deletar meu próprio usuário para encerrar minha conta no sistema.}
+{
+\item O sistema deve solicitar uma confirmação antes de deletar o usuário;
+\item Após a deleção, o usuário não deve mais conseguir acessar sua conta;
+\item O sistema deve exibir uma mensagem informando que a conta foi excluída.
+}
+
+% User Story 21
+\userstory{us-cadastro-atracao}{US-1}{Alta}
+{Como turista, desejo cadastrar uma atração no sistema para compartilhar informações sobre ela com outros usuários.}
+{
+\item O sistema deve permitir o preenchimento de informações da atração, como nome, descrição, categoria e endereço;
+\item O sistema deve verificar se os campos obrigatórios estão preenchidos antes de salvar;
+\item O sistema deve exibir uma mensagem de sucesso após o cadastro concluído.
+}
+
+% User Story 6
+\userstory{us-lista-atracoes-disponiveis}{US-1}{Alta}
+{Como turista, quero visualizar uma lista de atrações disponíveis para explorar as opções oferecidas na cidade.}
+{
+\item O sistema deve exibir as atrações disponíveis com nome, descrição resumida e categoria;
+\item O sistema deve permitir a ordenação ou filtragem por relevância, categoria ou subcategoria.
+}
+
+% User Story 7
+\userstory{us-detalhes-atracao}{US-1}{Alta}
+{Como turista, quero visualizar os detalhes de uma atração para decidir se quero visitá-la.}
+{
+\item O sistema deve exibir informações completas, como descrição, endereço e avaliações;
+\item O sistema deve incluir um botão para favoritar ou denunciar a atração.
+}
+
+% User Story 8
+\userstory{us-denuncia-atracao}{US-1}{Média}
+{Como turista, quero denunciar uma atração que tenha conteúdo impróprio ou informações incorretas para manter a qualidade do sistema.}
+{
+\item O sistema deve exibir um botão de denúncia em cada atração;
+\item O sistema deve solicitar um motivo ao usuário antes de registrar a denúncia;
+\item O sistema deve registrar a denúncia no sistema para revisão futura.
+}
+
+% User Story 22
+\userstory{us-deletar-atracao}{US-1}{Alta}
+{Como administrador, desejo deletar uma atração para remover conteúdo inadequado ou denunciado.}
+{
+\item O sistema deve listar todas as atrações com opção de exclusão;
+\item O administrador deve poder selecionar e excluir uma atração com um clique;
+\item O sistema deve exibir uma mensagem confirmando a exclusão da atração.
+}
+
+% User Story 23
+\userstory{us-editar-atracao}{US-1}{Média}
+{Como turista, autor de uma atração, desejo editar as informações da atração que criei para mantê-la atualizada.}
+{
+\item O sistema deve permitir a edição de qualquer campo da atração cadastrada;
+\item O sistema deve validar os dados editados antes de salvar;
+\item O sistema deve exibir uma mensagem confirmando a atualização.
+}
+
+% User Story 9
+\userstory{us-adicionar-favoritos}{US-1}{Média}
+{Como turista, quero adicionar uma atração à minha lista de favoritas para acessá-la facilmente no futuro.}
+{
+\item O sistema deve exibir um botão para favoritar em cada atração;
+\item A atração favoritada deve ser salva na lista de favoritos do usuário;
+\item O sistema deve exibir uma mensagem confirmando que a atração foi favoritada.
+}
+
+% User Story 10
+\userstory{us-visualizar-favoritos}{US-1}{Média}
+{Como turista, quero visualizar a lista de atrações favoritas para planejar minhas visitas.}
+{
+\item O sistema deve exibir uma lista com todas as atrações favoritas do usuário;
+\item Cada atração na lista deve mostrar nome, categoria e link para os detalhes.
+}
+
+% User Story 11
+\userstory{us-remover-favoritos}{US-1}{Média}
+{Como turista, quero remover uma atração da lista de favoritas para organizar melhor minhas opções.}
+{
+\item O sistema deve exibir um botão para remover cada atração da lista de favoritos;
+\item A atração removida não deve mais aparecer na lista;
+\item O sistema deve exibir uma mensagem confirmando a remoção.
+}
+
+% User Story 12
+\userstory{us-busca-categorias-atracoes}{US-1}{Alta}
+{Como turista, quero buscar atrações por categorias, subcategorias ou favoritos para encontrar opções específicas que me interessam.}
+{
+\item O sistema deve permitir a seleção de uma categoria, subcategoria ou filtro "favoritos";
+\item O sistema deve exibir apenas as atrações que correspondem ao critério selecionado.
+}
+
+% User Story 24
+\userstory{us-adicionar-oferta}{US-1}{Alta}
+{Como turista, desejo adicionar uma oferta a uma atração para compartilhar promoções ou condições especiais.}
+{
+\item O sistema deve permitir o preenchimento de informações da oferta, como descrição, preço e validade;
+\item O sistema deve validar os dados antes de salvar a oferta;
+\item O sistema deve exibir uma mensagem de sucesso após o cadastro da oferta.
+}
+
+% User Story 13
+\userstory{us-visualizar-ofertas-favoritas}{US-1}{Média}
+{Como turista, quero visualizar todas as ofertas disponíveis para as atrações que estão na minha lista de favoritas.}
+{
+\item O sistema deve listar todas as ofertas vinculadas às atrações favoritas do usuário;
+\item Cada oferta deve exibir informações como descrição, preço e validade.
+}
+
+% User Story 14
+\userstory{us-visualizar-ofertas-atracao}{US-1}{Média}
+{Como turista, quero visualizar todas as ofertas de uma atração específica para aproveitar as promoções disponíveis.}
+{
+\item O sistema deve exibir uma lista de ofertas vinculadas a uma atração;
+\item Cada oferta deve incluir detalhes como preço e validade.
+}
+
+% User Story 15
+\userstory{us-visualizar-detalhes-oferta}{US-1}{Média}
+{Como turista, quero visualizar os detalhes de uma oferta para entender as condições e benefícios oferecidos.}
+{
+\item O sistema deve exibir detalhes completos da oferta, como condições de uso e validade;
+\item O sistema deve incluir um botão para favoritar a atração vinculada à oferta.
+}
+
+% User Story 16
+\userstory{us-denuncia-oferta}{US-1}{Média}
+{Como turista, quero denunciar uma oferta com informações incorretas ou inadequadas para ajudar a manter a confiabilidade do sistema.}
+{
+\item O sistema deve exibir um botão de denúncia em cada oferta;
+\item O sistema deve solicitar um motivo para registrar a denúncia;
+\item O sistema deve registrar a denúncia no sistema para revisão futura.
+}
+
+% User Story 25
+\userstory{us-deletar-oferta}{US-1}{Alta}
+{Como administrador, desejo deletar uma oferta para remover conteúdo inadequado ou denunciado.}
+{
+\item O sistema deve listar todas as ofertas com opção de exclusão;
+\item O administrador deve poder selecionar e excluir uma oferta com um clique;
+\item O sistema deve exibir uma mensagem confirmando a exclusão da oferta.
+}
+
+% User Story 26
+\userstory{us-editar-oferta}{US-1}{Média}
+{Como turista, autor de uma oferta, desejo editar as informações da oferta que criei para mantê-la atualizada.}
+{
+\item O sistema deve permitir a edição de qualquer campo da oferta cadastrada;
+\item O sistema deve validar os dados editados antes de salvar;
+\item O sistema deve exibir uma mensagem confirmando a atualização.
+}
+
+% User Story 17
+\userstory{us-adicionar-avaliacao-atracao}{US-1}{Alta}
+{Como turista, quero adicionar uma avaliação para uma atração que visitei para compartilhar minha experiência com outros usuários.}
+{
+\item O sistema deve permitir que o usuário insira uma nota, comentário e título para a avaliação;
+\item O sistema deve associar a avaliação ao perfil do autor e à atração;
+\item O sistema deve exibir uma mensagem de sucesso após a submissão.
+}
+
+% User Story 18
+\userstory{us-visualizar-avaliacoes-atracao}{US-1}{Alta}
+{Como turista, quero visualizar todas as avaliações de uma atração para conhecer a experiência de outros visitantes.}
+{
+\item O sistema deve listar todas as avaliações de uma atração com a nota, título e autor;
+\item O sistema deve permitir ordenação por data ou relevância.
+}
+
+% User Story 19
+\userstory{us-visualizar-detalhes-avaliacao}{US-1}{Média}
+{Como turista, quero visualizar os detalhes de uma avaliação de atração para entender a opinião completa do autor.}
+{
+\item O sistema deve exibir o comentário completo, título, nota e informações do autor;
+\item O sistema deve incluir um botão para denunciar a avaliação.
+}
+
+% User Story 20
+\userstory{us-denuncia-avaliacao-atracao}{US-1}{Média}
+{Como turista, quero denunciar uma avaliação com conteúdo inadequado para ajudar a moderar o sistema.}
+{
+\item O sistema deve exibir um botão de denúncia em cada avaliação;
+\item O sistema deve solicitar um motivo antes de registrar a denúncia;
+\item O sistema deve registrar a denúncia para análise posterior.
+}
+
+% User Story 27
+\userstory{us-deletar-avaliacao}{US-1}{Alta}
+{Como administrador, desejo deletar uma avaliação de atração para remover conteúdo inadequado ou denunciado.}
+{
+\item O sistema deve listar todas as avaliações de atrações com opção de exclusão;
+\item O administrador deve poder selecionar e excluir uma avaliação com um clique;
+\item O sistema deve exibir uma mensagem confirmando a exclusão da avaliação.
+}
+
+% User Story 28
+\userstory{us-editar-avaliacao}{US-1}{Média}
+{Como turista, autor de uma avaliação, desejo editar as informações da avaliação que fiz para corrigir ou complementar meu feedback.}
+{
+\item O sistema deve permitir a edição de qualquer campo da avaliação cadastrada;
+\item O sistema deve validar os dados editados antes de salvar;
+\item O sistema deve exibir uma mensagem confirmando a atualização.
+}
+
+% User Story 29
+\userstory{us-cadastro-roteiro}{US-1}{Alta}
+{Como turista, desejo cadastrar um roteiro no sistema para compartilhar um itinerário de viagem com outros usuários.}
+{
+\item O sistema deve permitir o preenchimento de informações do roteiro, como título, descrição, categorias e pontos de interesse;
+\item O sistema deve validar se os campos obrigatórios estão preenchidos antes de salvar;
+\item O sistema deve exibir uma mensagem de sucesso após o cadastro concluído.
+}
+
+% User Story 30
+\userstory{us-lista-roteiros-disponiveis}{US-1}{Alta}
+{Como turista, desejo visualizar uma lista de roteiros disponíveis para explorar opções planejadas por outros usuários.}
+{
+\item O sistema deve exibir os roteiros com título, descrição resumida e categoria;
+\item O sistema deve permitir ordenar e filtrar roteiros por categorias ou popularidade.
+}
+
+% User Story 31
+\userstory{us-detalhes-roteiro}{US-1}{Alta}
+{Como turista, desejo visualizar os detalhes de um roteiro para decidir se quero segui-lo em minha viagem.}
+{
+\item O sistema deve exibir informações completas do roteiro, incluindo título, descrição, pontos de interesse e avaliações;
+\item O sistema deve incluir botões para favoritar, denunciar ou compartilhar o roteiro.
+}
+
+% User Story 32
+\userstory{us-denuncia-roteiro}{US-1}{Média}
+{Como turista, desejo denunciar um roteiro com conteúdo inadequado ou incorreto para melhorar a qualidade do sistema.}
+{
+\item O sistema deve exibir um botão de denúncia em cada roteiro;
+\item O sistema deve solicitar um motivo antes de registrar a denúncia;
+\item O sistema deve notificar o administrador sobre a denúncia feita. 
+}
+
+% User Story 33
+\userstory{us-delecao-roteiro-admin}{US-1}{Alta}
+{Como administrador, desejo deletar um roteiro denunciado para remover conteúdo inadequado ou impróprio do sistema.}
+{
+\item O sistema deve listar todos os roteiros denunciados com opção de exclusão;
+\item O administrador deve poder selecionar e excluir um roteiro com um clique;
+\item O sistema deve exibir uma mensagem confirmando a exclusão do roteiro.
+}
+
+% User Story 34
+\userstory{us-edicao-roteiro-autor}{US-1}{Média}
+{Como turista, autor de um roteiro, desejo editar as informações do roteiro que criei para mantê-lo atualizado.}
+{
+\item O sistema deve permitir a edição de qualquer campo do roteiro;
+\item O sistema deve validar os dados editados antes de salvar;
+\item O sistema deve exibir uma mensagem confirmando a atualização.
+}
+
+% User Story 35
+\userstory{us-salvar-roteiros-favoritos}{US-1}{Média}
+{Como turista, desejo salvar roteiros na minha lista de favoritos para acessá-los facilmente no futuro.}
+{
+\item O sistema deve exibir um botão para favoritar em cada roteiro;
+\item O roteiro favoritado deve ser salvo na lista de favoritos do usuário;
+\item O sistema deve exibir uma mensagem confirmando que o roteiro foi favoritado.
+}
+
+% User Story 36
+\userstory{us-visualizar-roteiros-favoritos}{US-1}{Média}
+{Como turista, desejo visualizar a lista de roteiros favoritos para organizar melhor minhas opções de itinerários.}
+{
+\item O sistema deve exibir uma lista com todos os roteiros favoritos do usuário;
+\item Cada roteiro na lista deve mostrar título, descrição e link para os detalhes.
+}
+
+% User Story 37
+\userstory{us-remover-roteiros-favoritos}{US-1}{Média}
+{Como turista, desejo remover um roteiro da lista de favoritos para reorganizar minhas opções de itinerários.}
+{
+\item O sistema deve exibir um botão para remover cada roteiro da lista de favoritos;
+\item O roteiro removido não deve mais aparecer na lista;
+\item O sistema deve exibir uma mensagem confirmando a remoção.
+}
+
+% User Story 38
+\userstory{us-busca-categorias-roteiros}{US-1}{Alta}
+{Como turista, desejo buscar roteiros por categorias, subcategorias ou favoritos para encontrar opções específicas que me interessam.}
+{
+\item O sistema deve permitir a seleção de uma categoria, subcategoria ou filtro "favoritos";
+\item O sistema deve exibir apenas os roteiros que correspondem ao critério selecionado.
+}
+ 
+% User Story 39
+\userstory{us-avaliacao-roteiro}{US-1}{Alta}
+{Como turista, desejo adicionar uma avaliação em um roteiro para compartilhar minha opinião e experiência com outros usuários.}
+{
+\item O sistema deve permitir o preenchimento de uma nota e um comentário para avaliação;
+\item O sistema deve exibir uma mensagem de sucesso após o envio da avaliação.
+}
+
+% User Story 40
+\userstory{us-visualizar-avaliacoes-roteiro}{US-1}{Média}
+{Como turista, desejo visualizar todas as avaliações de um roteiro para considerar a opinião de outros usuários.}
+{
+\item O sistema deve exibir uma lista de avaliações com nota e comentários;
+\item Cada avaliação deve incluir informações do autor e data.
+}
+
+% User Story 41
+\userstory{us-detalhes-avaliacao-roteiro}{US-1}{Média}
+{Como turista, desejo visualizar os detalhes de uma avaliação de roteiro para entender melhor o feedback dado.}
+{
+\item O sistema deve exibir detalhes completos da avaliação, como nota, comentário, autor e data;
+\item O sistema deve incluir um botão para denunciar avaliações impróprias.
+}
+
+% User Story 42
+\userstory{us-denuncia-avaliacao-roteiro}{US-1}{Média}
+{Como turista, desejo denunciar uma avaliação de roteiro com conteúdo inadequado para melhorar a confiabilidade do sistema.}
+{
+\item O sistema deve exibir um botão de denúncia em cada avaliação;
+\item O sistema deve solicitar um motivo antes de registrar a denúncia;
+\item O sistema deve notificar o administrador sobre a denúncia feita.
+}
+
+% User Story 43
+\userstory{us-delecao-avaliacao-roteiro-admin}{US-1}{Alta}
+{Como administrador, desejo deletar uma avaliação de roteiro para remover conteúdo impróprio ou denunciado.}
+{
+\item O sistema deve listar todas as avaliações com opção de exclusão;
+\item O administrador deve poder selecionar e excluir uma avaliação com um clique;
+\item O sistema deve exibir uma mensagem confirmando a exclusão da avaliação.
+}
+
+% User Story 44
+\userstory{us-edicao-avaliacao-autor}{US-1}{Média}
+{Como turista, autor de uma avaliação, desejo editar as informações da avaliação que fiz para corrigir ou complementar meu feedback.}
+{
+\item O sistema deve permitir a edição de qualquer campo da avaliação cadastrada;
+\item O sistema deve validar os dados editados antes de salvar;
+\item O sistema deve exibir uma mensagem confirmando a atualização.
+}
+
+% User Story 45
+\userstory{us-edicao-informacoes-atracao-admin}{US-1}{Alta}
+{Como administrador, desejo editar informações de atrações para corrigir ou atualizar seus dados.}
+{
+\item O sistema deve permitir a edição de qualquer campo da atração cadastrada;
+\item O sistema deve exibir uma mensagem confirmando a atualização realizada.
+}
+
+% User Story 46
+\userstory{us-edicao-informacoes-roteiro-admin}{US-1}{Alta}
+{Como administrador, desejo editar informações de roteiros para corrigir ou atualizar seus dados.}
+{
+\item O sistema deve permitir a edição de qualquer campo do roteiro cadastrado;
+\item O sistema deve exibir uma mensagem confirmando a atualização realizada.
+}
+
+% User Story 47
+\userstory{us-vinculacao-atracoes-categorias}{US-1}{Média}
+{Como turista, desejo que as atrações estejam vinculadas a categorias e subcategorias para facilitar minha navegação.}
+{
+\item O sistema deve permitir que cada atração seja categorizada durante o cadastro;
+\item O sistema deve exibir as atrações organizadas por categorias e subcategorias.
+}
+
+% User Story 48
+\userstory{us-vinculacao-roteiros-categorias}{US-1}{Média}
+{Como turista, desejo que os roteiros estejam vinculados a categorias e subcategorias para facilitar minha navegação.}
+{
+\item O sistema deve permitir que cada roteiro seja categorizado durante o cadastro;
+\item O sistema deve exibir os roteiros organizados por categorias e subcategorias.
+}
+\end{longtable}
+
+
+% Define contador e identificador para requisitos não funcionais.
+% Usar \RNF\label{rnf-nome-do-label} para cada requisito definido.
+\newcounter{rnfcount}
+\renewcommand*\thernfcount{RNF-\arabic{rnfcount}}
+\newcommand*\RNF{\refstepcounter{rnfcount}\thernfcount}
+\setcounter{rnfcount}{0}
+
+% Tabela de requisitos não funcionais.
+\begin{longtable}{|c|p{8.3cm}|c|c|}
+	\caption{Requisitos Não Funcionais.}
+	\label{tbl-requisitos-rnfs} \\\hline 
+	
+	% Cabeçalho e repetição do mesmo em cada nova página. Manter como está.
+	\rowcolor{lightgray}
+	\textbf{ID} & \textbf{Descrição} & \textbf{Categoria} & \textbf{Prioridade} \\\hline		
+	\endfirsthead
+	\hline
+	\rowcolor{lightgray}
+	\textbf{ID} & \textbf{Descrição} & \textbf{Categoria} & \textbf{Prioridade} \\\hline		
+	\endhead
+	
+	% Especificar os requisitos abaixo, substituindo os exemplos.
+	\RNF\label{rnf-exemplo-1} & Exibir resultados de buscas e filtros em até 2 segundos. & Desempenho & Baixa \\\hline 	
+
+	\RNF\label{rnf-exemplo-2} & Suportar até 5.000 turistas simultâneos sem degradação. & Escalabilidade & Alta \\\hline 	
+
+	\RNF\label{rnf-exemplo-3} & Armazenar dados com criptografia e em conformidade com a LGPD.
+ & Segurança & Alta \\\hline
+
+    \RNF\label{rnf-exemplo-4} & Garantir 99,9 por cento de disponibilidade mensal para turistas acessarem o sistema.
+& Confiabilidade & Alta \\\hline
+
+    \RNF\label{rnf-exemplo-5} & Garantir responsividade para uso fluido em dispositivos móveis. & Usabilidade & Média \\\hline
+
+    \RNF\label{rnf-exemplo-6} & Desenvolvido para plataforma nativa do sistema operacional: Linguagem Kotlin
+ & Implementação & Baixa \\\hline
+\end{longtable}
+
+\FloatBarrier

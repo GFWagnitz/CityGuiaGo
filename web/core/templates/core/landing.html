@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CityGuiaGo - Seu guia de viagem personalizado</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .hero-section {
+            padding: 100px 0;
+            background-color: #f8f9fa;
+        }
+        .features-section {
+            padding: 80px 0;
+        }
+        .screenshot-section {
+            padding: 80px 0;
+            background-color: #f8f9fa;
+        }
+        .cta-section {
+            padding: 60px 0;
+            background-color: #343a40;
+            color: white;
+        }
+        .footer {
+            padding: 30px 0;
+            background-color: #212529;
+            color: white;
+        }
+        .app-screenshot {
+            max-height: 500px;
+            object-fit: contain;
+            margin: 0 auto;
+            display: block;
+            border: 1px solid #dee2e6;
+        }
+        .app-screenshot-container {
+            height: 500px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        .hero-image {
+            max-height: 550px;
+            object-fit: contain;
+            margin: 0 auto;
+            display: block;
+        }
+        .hero-image-container {
+            height: auto;
+            max-height: 550px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        @media (max-width: 768px) {
+            .app-screenshot-container {
+                height: 350px;
+            }
+            .app-screenshot {
+                max-height: 350px;
+            }
+            .hero-image {
+                max-height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Barra de navegação -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">CityGuiaGo</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#recursos">Recursos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#app">App</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#sobre">Sobre</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Seção Hero -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="display-4 fw-bold mb-4">Explore e planeje suas viagens com o CityGuiaGo</h1>
+                    <p class="lead mb-4">Descubra as melhores atrações, crie roteiros personalizados e compartilhe suas experiências com outros viajantes.</p>
+                    <div class="d-flex gap-3">
+                        <a href="#" class="btn btn-primary btn-lg">Em Breve na Play Store</a>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="mt-4 mt-lg-0 hero-image-container">
+                        <img src="/media/home/home.jpg" alt="Tela inicial do CityGuiaGo" class="img-fluid rounded shadow hero-image">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção de recursos -->
+    <section class="features-section" id="recursos">
+        <div class="container">
+            <h2 class="text-center mb-5">Recursos Principais</h2>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-map" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M15.817.113A.5.5 0 0 1 16 .5v14a.5.5 0 0 1-.402.49l-5 1a.502.502 0 0 1-.196 0L5.5 15.01l-4.902.98A.5.5 0 0 1 0 15.5v-14a.5.5 0 0 1 .402-.49l5-1a.5.5 0 0 1 .196 0L10.5.99l4.902-.98a.5.5 0 0 1 .415.103zM10 1.91l-4-.8v12.98l4 .8V1.91zm1 12.98 4-.8V1.11l-4 .8v12.98zm-6-.8V1.11l-4 .8v12.98l4-.8z"/>
+                                </svg>
+                            </div>
+                            <h3 class="h4 mb-2">Explore Atrações</h3>
+                            <p class="text-muted">Descubra atrações turísticas, restaurantes, eventos e muito mais em diversas cidades.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-journal-check" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M10.854 6.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 8.793l2.646-2.647a.5.5 0 0 1 .708 0z"/>
+                                    <path d="M3 0h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-12a2 2 0 0 1 2-2zm0 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H3z"/>
+                                </svg>
+                            </div>
+                            <h3 class="h4 mb-2">Crie Roteiros</h3>
+                            <p class="text-muted">Planeje suas viagens com roteiros personalizados por dia e organize seu tempo de forma eficiente.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-people" viewBox="0 0 16 16">
+                                    <path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1h8Zm-7.978-1A.261.261 0 0 1 7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002a.274.274 0 0 1-.014.002H7.022ZM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM6.936 9.28a5.88 5.88 0 0 0-1.23-.247A7.35 7.35 0 0 0 5 9c-4 0-5 3-5 4 0 .667.333 1 1 1h4.216A2.238 2.238 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816ZM4.92 10A5.493 5.493 0 0 0 4 13H1c0-.26.164-1.03.76-1.724.545-.636 1.492-1.256 3.16-1.275ZM1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0Zm3-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z"/>
+                                </svg>
+                            </div>
+                            <h3 class="h4 mb-2">Compartilhe Experiências</h3>
+                            <p class="text-muted">Avalie atrações, compartilhe roteiros e confira recomendações de outros usuários.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção de screenshots -->
+    <section class="screenshot-section" id="app">
+        <div class="container">
+            <h2 class="text-center mb-5">Nosso Aplicativo</h2>
+            <div class="row g-4">
+                <div class="col-6 col-md-3">
+                    <div class="text-center app-screenshot-container">
+                        <img src="/media/home/home.jpg" alt="Tela inicial do CityGuiaGo" class="img-fluid rounded shadow app-screenshot">
+                    </div>
+                    <h3 class="h5 mt-3 text-center">Tela inicial</h3>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="text-center app-screenshot-container">
+                        <img src="/media/home/atracao.jpg" alt="Tela de atrações do CityGuiaGo" class="img-fluid rounded shadow app-screenshot">
+                    </div>
+                    <h3 class="h5 mt-3 text-center">Explore atrações</h3>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="text-center app-screenshot-container">
+                        <img src="/media/home/roteiro.jpg" alt="Tela de roteiro do CityGuiaGo" class="img-fluid rounded shadow app-screenshot">
+                    </div>
+                    <h3 class="h5 mt-3 text-center">Crie roteiros</h3>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="text-center app-screenshot-container">
+                        <img src="/media/home/roteiros_lista.jpg" alt="Tela de lista de roteiros do CityGuiaGo" class="img-fluid rounded shadow app-screenshot">
+                    </div>
+                    <h3 class="h5 mt-3 text-center">Seus roteiros</h3>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção Sobre -->
+    <section class="features-section" id="sobre">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h2 class="mb-4">Sobre o CityGuiaGo</h2>
+                    <p class="lead mb-4">O CityGuiaGo nasceu com a missão de facilitar a vida dos viajantes, oferecendo uma plataforma completa para descobrir novos lugares, planejar roteiros e compartilhar experiências.</p>
+                    <p class="mb-4">Nosso aplicativo é desenvolvido por estudantes da UFES (Universidade Federal do Espírito Santo) e combina o poder da tecnologia com o conhecimento local para oferecer a melhor experiência aos nossos usuários.</p>
+                </div>
+                <div class="col-lg-6">
+                    <div class="text-center">
+                        <img src="/media/home/time.png" alt="Equipe CityGuiaGo" class="img-fluid rounded" width="500" height="300">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção Call to Action -->
+    <section class="cta-section">
+        <div class="container text-center">
+            <h2 class="mb-4">Pronto para começar sua próxima aventura?</h2>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="#" class="btn btn-primary btn-lg">Em Breve Download para Android</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h3 class="h5">CityGuiaGo</h3>
+                    <p class="mb-0">Seu guia de viagem personalizado</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0">&copy; 2025 CityGuiaGo. Todos os direitos reservados.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

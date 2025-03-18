@@ -1,0 +1,190 @@
+\chapter{Dicionário de Projeto}
+\label{sec-dicionario}
+\vspace{-1cm}
+
+Esta seção apresenta as definições detalhadas das classes, descrevendo seus atributos e associações e servindo como um glossário do projeto. As definições são organizadas por subsistema, cada classe sendo apresentada em uma tabela separada. A coluna "Obr.?" indica com um "x" se o atributo é obrigatório (deve possuir um valor para se criar um objeto da classe).
+
+\section{Gestão de Usuários}
+\label{sec-dicionario-usuarios}
+
+\begin{longtable}{|p{3.5cm}|c|c|p{8cm}|}
+    \caption{Detalhamento da classe \emph{Usuario}.}
+    \label{tbl-dicionario-usuario} \\\hline 
+    
+    \rowcolor{lightgray}
+    \textbf{Propriedade} & \textbf{Tipo} & \textbf{Obr.?} & \textbf{Descrição} \\\hline
+    \endfirsthead
+    \hline
+    \rowcolor{lightgray}
+    \textbf{Propriedade} & \textbf{Tipo} & \textbf{Obr.?} & \textbf{Descrição} \\\hline
+    \endhead
+    
+    id & UUID & x & Identificador único do usuário \\\hline
+    nome & Texto & x & Nome completo do usuário \\\hline
+    email & Email & x & Endereço de email do usuário \\\hline
+    senha & Texto & x & Senha criptografada do usuário \\\hline
+    dataCadastro & Data & x & Data de criação da conta \\\hline
+    avatar & Imagem & & Foto de perfil do usuário \\\hline
+    roteiros & Roteiro & & Lista de roteiros criados pelo usuário \\\hline
+    avaliacoes & Avaliacao & & Lista de avaliações feitas pelo usuário \\\hline
+	denuncias & Lista<Denuncia> & & Lista de denúncias feitas pelo Usuários \\\hline
+    atracoesFavoritas & Atracao & & Lista de atrações marcadas como favoritas \\\hline
+\end{longtable}
+
+\section{Gestão de Atrações}
+\label{sec-dicionario-atracoes}
+
+\begin{longtable}{|p{3.5cm}|c|c|p{8cm}|}
+    \caption{Detalhamento da classe \emph{Atracao}.}
+    \label{tbl-dicionario-atracao} \\\hline 
+    
+    \rowcolor{lightgray}
+    \textbf{Propriedade} & \textbf{Tipo} & \textbf{Obr.?} & \textbf{Descrição} \\\hline
+    \endfirsthead
+    \hline
+    \rowcolor{lightgray}
+    \textbf{Propriedade} & \textbf{Tipo} & \textbf{Obr.?} & \textbf{Descrição} \\\hline
+    \endhead
+    
+    id & UUID & x & Identificador único da atração \\\hline
+    nome & Texto & x & Nome da atração turística \\\hline
+    descricao & Texto & x & Descrição detalhada da atração \\\hline
+    endereco & Endereco & x & Localização da atração \\\hline
+    categoria & Categoria & x & Categoria da atração (ex: Museu, Parque) \\\hline
+    imagens & Lista<Imagem> & & Galeria de imagens da atração \\\hline
+    horarioFuncionamento & Texto & x & Horários de funcionamento \\\hline
+    precoMedio & Decimal & & Preço médio do ingresso \\\hline
+    avaliacoes & Avaliacao & & Lista de avaliações da atração \\\hline
+	denuncias & Lista<Denuncia> & & Lista de denúncias sobre a atração \\\hline
+    ofertas & Oferta & & Lista de ofertas relacionadas \\\hline
+\end{longtable}
+
+\section{Gestão de Roteiros}
+\label{sec-dicionario-roteiros}
+
+\begin{longtable}{|p{3.5cm}|c|c|p{8cm}|}
+    \caption{Detalhamento da classe \emph{Roteiro}.}
+    \label{tbl-dicionario-roteiro} \\\hline 
+    
+    \rowcolor{lightgray}
+    \textbf{Propriedade} & \textbf{Tipo} & \textbf{Obr.?} & \textbf{Descrição} \\\hline
+    \endfirsthead
+    \hline
+    \rowcolor{lightgray}
+    \textbf{Propriedade} & \textbf{Tipo} & \textbf{Obr.?} & \textbf{Descrição} \\\hline
+    \endhead
+    
+    id & UUID & x & Identificador único do roteiro \\\hline
+    titulo & Texto & x & Título do roteiro \\\hline
+    descricao & Texto & x & Descrição detalhada do roteiro \\\hline
+    criador & Usuario & x & Usuário que criou o roteiro \\\hline
+    dataCriacao & Data & x & Data de criação do roteiro \\\hline
+    duracaoEstimada & Inteiro & x & Duração estimada em dias \\\hline
+    atracoes & Lista<Atracao> & x & Lista de atrações incluídas no roteiro \\\hline
+    avaliacoes & Avaliacao & & Lista de avaliações do roteiro \\\hline
+    categoria & Categoria & x & Categoria do roteiro (ex: Família, Aventura) \\\hline
+	denuncias & Lista<Denuncia> & & Lista de denúncias sobre o roteiro \\\hline
+    status & Status & x & Status do roteiro (Público/Privado) \\\hline
+\end{longtable}
+
+\section{Gestão de Avaliações}
+\label{sec-dicionario-avaliacoes}
+
+\begin{longtable}{|p{3.5cm}|c|c|p{8cm}|}
+    \caption{Detalhamento da classe \emph{Avaliacao}.}
+    \label{tbl-dicionario-avaliacao} \\\hline 
+    
+    \rowcolor{lightgray}
+    \textbf{Propriedade} & \textbf{Tipo} & \textbf{Obr.?} & \textbf{Descrição} \\\hline
+    \endfirsthead
+    \hline
+    \rowcolor{lightgray}
+    \textbf{Propriedade} & \textbf{Tipo} & \textbf{Obr.?} & \textbf{Descrição} \\\hline
+    \endhead
+    
+    id & UUID & x & Identificador único da avaliação \\\hline
+    autor & Usuario & x & Usuário que fez a avaliação \\\hline
+    nota & Inteiro & x & Nota de 1 a 5 \\\hline
+    comentario & Texto & x & Texto da avaliação \\\hline
+    dataAvaliacao & Data & x & Data em que a avaliação foi feita \\\hline
+    tipoAvaliacao & Tipo & x & Tipo (Atração/Roteiro) \\\hline
+    itemAvaliado & UUID & x & ID do item avaliado (Atração ou Roteiro) \\\hline
+    denuncias & Lista<Denuncia> & & Lista de denúncias sobre a avaliação \\\hline
+    fotos & Lista<Imagem> & & Fotos anexadas à avaliação \\\hline
+\end{longtable}
+
+\section{Gestão de Ofertas}
+\label{sec-dicionario-ofertas}
+
+\begin{longtable}{|p{3.5cm}|c|c|p{8cm}|}
+    \caption{Detalhamento da classe \emph{Oferta}.}
+    \label{tbl-dicionario-oferta} \\\hline 
+    
+    \rowcolor{lightgray}
+    \textbf{Propriedade} & \textbf{Tipo} & \textbf{Obr.?} & \textbf{Descrição} \\\hline
+    \endfirsthead
+    \hline
+    \rowcolor{lightgray}
+    \textbf{Propriedade} & \textbf{Tipo} & \textbf{Obr.?} & \textbf{Descrição} \\\hline
+    \endhead
+    
+    id & UUID & x & Identificador único da oferta \\\hline
+    titulo & Texto & x & Título da oferta \\\hline
+    descricao & Texto & x & Descrição detalhada da oferta \\\hline
+    atracao & Atracao & x & Atração relacionada à oferta \\\hline
+    preco & Decimal & x & Preço promocional \\\hline
+    dataInicio & Data & x & Data de início da oferta \\\hline
+    dataFim & Data & x & Data de término da oferta \\\hline
+    status & Status & x & Status da oferta (Ativa/Inativa) \\\hline
+    denuncias & Lista<Denuncia> & & Lista de denúncias sobre a oferta \\\hline
+\end{longtable}
+
+\section{Classes Auxiliares}
+\label{sec-dicionario-auxiliares}
+
+\begin{longtable}{|p{3.5cm}|c|c|p{8cm}|}
+    \caption{Detalhamento da classe \emph{Endereco}.}
+    \label{tbl-dicionario-endereco} \\\hline 
+    
+    \rowcolor{lightgray}
+    \textbf{Propriedade} & \textbf{Tipo} & \textbf{Obr.?} & \textbf{Descrição} \\\hline
+    \endfirsthead
+    \hline
+    \rowcolor{lightgray}
+    \textbf{Propriedade} & \textbf{Tipo} & \textbf{Obr.?} & \textbf{Descrição} \\\hline
+    \endhead
+    
+    logradouro & Texto & x & Nome da rua \\\hline
+    numero & Texto & x & Número do local \\\hline
+    complemento & Texto & & Informações adicionais \\\hline
+    bairro & Texto & x & Nome do bairro \\\hline
+    cidade & Texto & x & Nome da cidade \\\hline
+    estado & Texto & x & Nome do estado \\\hline
+    cep & CEP & x & Código postal \\\hline
+    coordenadas & Coordenadas & x & Latitude e longitude \\\hline
+\end{longtable}
+
+\begin{longtable}{|p{3.5cm}|c|c|p{8cm}|}
+    \caption{Detalhamento da classe \emph{Denuncia}.}
+    \label{tbl-dicionario-denuncia} \\\hline 
+    
+    \rowcolor{lightgray}
+    \textbf{Propriedade} & \textbf{Tipo} & \textbf{Obr.?} & \textbf{Descrição} \\\hline
+    \endfirsthead
+    \hline
+    \rowcolor{lightgray}
+    \textbf{Propriedade} & \textbf{Tipo} & \textbf{Obr.?} & \textbf{Descrição} \\\hline
+    \endhead
+    
+    id & UUID & x & Identificador único da denúncia \\\hline
+    denunciante & Usuario & x & Usuário que realizou a denúncia \\\hline
+    tipoDenuncia & Enum & x & Categoria da denúncia (Conteúdo Inadequado, Informação Incorreta, Spam, Ofensivo, Outros) \\\hline
+    descricao & Texto & x & Descrição detalhada do motivo da denúncia \\\hline
+    dataDenuncia & Data & x & Data e hora em que a denúncia foi realizada \\\hline
+    status & Enum & x & Status da denúncia (Pendente, Em Análise, Resolvida, Rejeitada) \\\hline
+    tipoItem & Enum & x & Tipo do item denunciado (Avaliação, Oferta) \\\hline
+    itemDenunciado & UUID & x & Identificador do item que está sendo denunciado \\\hline
+    dataConclusao & Data & & Data em que a denúncia foi analisada e concluída \\\hline
+    parecerModerador & Texto & & Parecer do moderador sobre a denúncia \\\hline
+    evidencias & Lista<Arquivo> & & Arquivos ou prints que comprovem o motivo da denúncia \\\hline
+\end{longtable}

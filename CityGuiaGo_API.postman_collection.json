@@ -1,0 +1,172 @@
+{
+	"info": {
+		"_postman_id": "a1b2c3d4-e5f6-g7h8-i9j0-k1l2m3n4o5p6",
+		"name": "CityGuiaGo API",
+		"description": "Collection for testing the CityGuiaGo API authentication endpoints",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Signup",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"testuser\",\n    \"email\": \"testuser@example.com\",\n    \"password\": \"StrongPassword123!\",\n  \"nome\": \"Test User\",\n    \"avatar\": \"https://example.com/avatar.jpg\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/signup/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"signup",
+								""
+							]
+						},
+						"description": "Register a new user account"
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"testuser\",\n    \"password\": \"StrongPassword123!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login",
+								""
+							]
+						},
+						"description": "Login with username and password to get auth token"
+					},
+					"response": []
+				},
+				{
+					"name": "Validate Token",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/auth/validate/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"validate",
+								""
+							]
+						},
+						"description": "Validate the token and get current user info"
+					},
+					"response": []
+				},
+				{
+					"name": "Current User Info",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/me/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"me",
+								""
+							]
+						},
+						"description": "Get current authenticated user information"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints for user authentication"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Auto-save tokens from login/signup responses",
+					"if (pm.response.code === 200 || pm.response.code === 201) {",
+					"    var jsonData = pm.response.json();",
+					"    if (jsonData && jsonData.token) {",
+					"        pm.environment.set(\"authToken\", jsonData.token);",
+					"        console.log(\"Auth token saved to environment: \" + jsonData.token);",
+					"    }",
+					"}"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "authToken",
+			"value": "",
+			"type": "string"
+		}
+	]
+} 

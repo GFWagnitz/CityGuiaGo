@@ -1,0 +1,100 @@
+Em Português do Brasil, estou produzindo a documentação de requisitos de um Aplicativo Android de Atrações túristicas, onde os usuarios que baixarem conseguirão visualizar informações sobre destinos turísticos, montar roteiros de viagem e visualizar ofertas nos destinos turísticos.
+
+Para atender aos requisitos elencados na Seção Requisitos e a fim de facilitar o gerenciamento do projeto, o sistema foi dividido em 2 subsistemas: Gestão de Usuários e Gestão de Conteúdo Turístico. Este último
+foi ainda subdividido em Gestão de Roteiros, Gestão de Atrações, Gestão de Avaliações em Roteiros, Gestão de Avaliações em Atrações e Gestão de Ofertas. 
+
+Aqui está uma descrição dos sitemas:
+
+Gestão de Conteúdo Turístico:
+Responsável pela organização, exibição e atualização de conteúdos relacionados às atrações turísticas e roteiros. Inclui o cadastro de novas atrações e roteiros, bem como a organização de informações detalhadas sobre eles, categorização e a manutenção de suas informações.
+	
+Gestão de Usuários:
+Gerencia o cadastro, autenticação, edição, visualização e exclusão de usuários no sistema. Inclui o controle de permissões e a personalização da experiência do usuário, permitindo que turistas acessem suas preferências e dados pessoais.
+	
+Gestão de Avaliações em Roteiros:
+Responsável pela criação, edição e exclusão de avaliações feitas por turistas sobre roteiros. Inclui a moderação de avaliações, a possibilidade de denunciar avaliações inadequadas e a organização das avaliações para exibição no sistema.
+
+Gestão de Avaliação em Atrações:
+Gerencia as avaliações feitas pelos turistas sobre as atrações. Este subsistema permite o cadastro de novas avaliações, a edição das existentes e a moderação para garantir que as avaliações sejam apropriadas e úteis para outros usuários.
+
+Gestão de Roteiros:
+Foca no gerenciamento de roteiros turísticos, permitindo que turistas visualizem, criem, editem e salvem roteiros personalizados. Inclui também a funcionalidade de busca de roteiros por categorias e subcategorias, além da gestão de favoritos.
+
+Gestão de Atrações:
+Responsável pelo gerenciamento das atrações turísticas no sistema. Este subsistema possibilita o cadastro, a edição, a visualização e a exclusão de atrações, além de permitir que os turistas as adicionem à sua lista de favoritos e busquem por categorias e subcategorias.
+
+Gestão de Ofertas:
+Subsistema que gerencia as ofertas vinculadas às atrações turísticas. Permite que os turistas visualizem ofertas relacionadas a atrações favoritas, cria e edita novas ofertas, e também denuncia ofertas inapropriadas ou desatualizadas.
+
+
+A Seguir está um capítulo de documentação de dicionário do projeto em LATEX:
+
+\chapter{Dicionário de Projeto}
+\label{sec-dicionario}
+\vspace{-1cm}
+
+Esta seção apresenta as definições detalhadas das classes, descrevendo seus atributos e associações e servindo como um glossário do projeto. As definições são organizadas por subsistema, cada classe sendo apresentada em uma tabela separada. A coluna ``Obr.?'' indica com um ``x'' se o atributo é obrigatório (deve possuir um valor para se criar um objeto da classe).
+
+Vale destacar que eventuais operações que estas classes vierem a ter não são listadas e descritas nesta fase do projeto. Além disso, na Seção~\ref{sec-modelo-estrutural}, algumas classes podem ser incluídas nos diagramas de outros subsistemas para ilustrar a relação entre eles. No dicionário de projeto, no entanto, classes são descritas apenas em seus subsistemas de origem.
+
+\professor{Criar uma subseção para cada subsistema. Dentro de cada subseção, criar uma tabela similar às tabelas~\ref{tbl-dicionario-subsistema-primeiro-classe-01} e~\ref{tbl-dicionario-subsistema-primeiro-classe-02}, abaixo, descrevendo as classes daquele subsistema. As linhas da tabela descrevem atributos e associações, explicando o que representam no domínio do problema. Os tipos devem ser genéricos (i.e., não específicos de uma linguagem de programação) e podem ilustrar também tipos específicos de domínio (ex.: CEP e CPF podem ser tipos de atributos). Quando a extremidade de uma associação possuir um nome, usar este nome na tabela (ex.: ``objetos'' na Tabela~\ref{tbl-dicionario-subsistema-primeiro-classe-01}), do contrário usar um nome genérico dependendo da cardinalidade da extremidade. Não é necessário referenciar as tabelas em texto, pois a legenda de cada uma já indica qual classe está sendo descrita.}
+
+
+
+% Definir uma subseção para cada subsistema.	
+\section{Subsistema 01}
+\label{sec-dicionario-subsistema-primeiro}
+
+
+% Tabela de dicionário de projeto referente a uma classe.
+\begin{longtable}{|p{3.5cm}|c|c|p{8cm}|}
+	\caption{Detalhamento da classe \emph{Classe 01}.}
+	\label{tbl-dicionario-subsistema-primeiro-classe-01} \\\hline 
+	
+	% Cabeçalho e repetição do mesmo em cada nova página. Manter como está.
+	\rowcolor{lightgray}
+	\textbf{Propriedade} & \textbf{Tipo} & \textbf{Obr.?} & \textbf{Descrição} \\\hline
+	\endfirsthead
+	\hline
+	\rowcolor{lightgray}
+	\textbf{Propriedade} & \textbf{Tipo} & \textbf{Obr.?} & \textbf{Descrição} \\\hline
+	\endhead
+	
+	% Especificar os atributos e associações da classe abaixo, substituindo os exemplos.
+	atributo da classe 01 	& Texto 	& x & Descrição do atributo da classe 01. \\\hline
+	classe 02 				& Classe 02 &	& Descrição da associação com a Classe 02. \\\hline 
+	objetos 				& Classe 03 &	& Associação com Classe 03 possui nome ``objetos''. \\\hline 
+\end{longtable}
+
+
+% Tabela de dicionário de projeto referente a uma classe.
+\begin{longtable}{|p{3.5cm}|c|c|p{8cm}|}
+	\caption{Detalhamento da classe \emph{Classe 02}.}
+	\label{tbl-dicionario-subsistema-primeiro-classe-02} \\\hline 
+	
+	% Cabeçalho e repetição do mesmo em cada nova página. Manter como está.
+	\rowcolor{lightgray}
+	\textbf{Propriedade} & \textbf{Tipo} & \textbf{Obr.?} & \textbf{Descrição} \\\hline
+	\endfirsthead
+	\hline
+	\rowcolor{lightgray}
+	\textbf{Propriedade} & \textbf{Tipo} & \textbf{Obr.?} & \textbf{Descrição} \\\hline
+	\endhead
+	
+	% Especificar os atributos e associações da classe abaixo, substituindo os exemplos.
+	um atributo				& Inteiro	& x & Descrição deste atributo. \\\hline
+	outro atributo			& Real		& 	& Exemplos \\\hline
+	acento não tem problema	& Data		& 	& de \\\hline
+	nem espaço em branco	& Booleano	& x	& tipos de dados. \\\hline
+	classes 01 				& Classe 01 &	& Descrição da associação com a Classe 01. \\\hline 
+\end{longtable}
+
+
+
+% Definir uma subseção para cada subsistema.	
+\section{Subsistema 02}
+\label{sec-dicionario-subsistema-segundo}
+
+--- 
+
+Baseado nesse modelo, gere um documento em LaTeX que atenda aos requisitos do capitulo 6 "Dicionário de Projeto"
