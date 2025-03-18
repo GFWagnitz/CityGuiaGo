@@ -1,6 +1,7 @@
 package com.pi.cityguiago
 
 import androidx.compose.foundation.background
+import androidx.compose.material.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -62,11 +63,10 @@ import com.pi.cityguiago.module.Itinerary.ItineraryAction
 import com.pi.cityguiago.module.Itinerary.ItineraryEffect
 import com.pi.cityguiago.module.Itinerary.ItineraryState
 import com.pi.cityguiago.module.Itinerary.ItineraryViewModel
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.androidx.compose.koinViewModel
 
 
-@Composable @Preview
+@Composable
 fun ItinerariesView(
     navController: NavHostController,
     viewModel: ItineraryViewModel = koinViewModel()
@@ -120,91 +120,99 @@ fun ItinerariesView(
                 .padding(padding)
         ) {
             TabRow(
-                selectedTabIndex = tabIndex,
-                backgroundColor = Background,
-                contentColor = Color.White,
-                indicator = { tabPositions ->
-                    TabRowDefaults.Indicator(
-                        Modifier.padding(horizontal = 40.dp),
-                        height = 2.dp,
-                        color = Colors.Orange500
-                    )
+            selectedTabIndex = tabIndex,
+            backgroundColor = Background,
+            contentColor = Color.White,
+            divider = { /* No divider */ },
+            indicator = { tabPositions ->
+                if (tabIndex < tabPositions.size) {
+                TabRowDefaults.Indicator(
+                    modifier = Modifier.tabIndicatorOffset(tabPositions[tabIndex]),
+                    height = 2.dp,
+                    color = Colors.Orange500
+                )
                 }
+            }
             ) {
-                tabs.forEachIndexed { index, title ->
-                    Tab(
-                        text = { TextH3(title) },
-                        selected = tabIndex == index,
-                        onClick = { tabIndex = index }
-                    )
+            tabs.forEachIndexed { index, title ->
+                Tab(
+                selected = tabIndex == index,
+                onClick = { tabIndex = index },
+                text = { 
+                    TextH3(
+                    text = title,
+                    colorValue = if (tabIndex == index) Colors.Orange500 else Color.Black
+                    ) 
                 }
+                )
+            }
             }
 
             when (itineraryState) {
-                is ItineraryState.Idle, ItineraryState.Loading -> {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(Background),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Loading()
-                    }
+            is ItineraryState.Idle, ItineraryState.Loading -> {
+                Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Background),
+                contentAlignment = Alignment.Center
+                ) {
+                Loading()
                 }
+            }
 
-                is ItineraryState.Error -> {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(Background)
-                            .padding(Metrics.Margins.large),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        TextBody((itineraryState as ItineraryState.Error).message)
-                    }
+            is ItineraryState.Error -> {
+                Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Background)
+                    .padding(Metrics.Margins.large),
+                contentAlignment = Alignment.Center
+                ) {
+                TextBody((itineraryState as ItineraryState.Error).message)
                 }
+            }
 
-                is ItineraryState.PublicItinerariesLoaded -> {
-                    val itineraries = (itineraryState as ItineraryState.PublicItinerariesLoaded).itineraries
-                    ItineraryList(
-                        itineraries = itineraries,
-                        onItineraryClick = { 
-                            viewModel.handleAction(ItineraryAction.LoadItineraryDetails(it.id))
-                            navController.navigate("itinerary_details/${it.id}")
-                        },
-                        onFavoriteClick = { itinerary, isFavorite ->
-                            viewModel.handleAction(ItineraryAction.ToggleFavorite(itinerary, isFavorite))
-                        }
-                    )
+            is ItineraryState.PublicItinerariesLoaded -> {
+                val itineraries = (itineraryState as ItineraryState.PublicItinerariesLoaded).itineraries
+                ItineraryList(
+                itineraries = itineraries,
+                onItineraryClick = { 
+                    viewModel.handleAction(ItineraryAction.LoadItineraryDetails(it.id))
+                    navController.navigate("itinerary_details/${it.id}")
+                },
+                onFavoriteClick = { itinerary, isFavorite ->
+                    viewModel.handleAction(ItineraryAction.ToggleFavorite(itinerary, isFavorite))
                 }
+                )
+            }
 
-                is ItineraryState.FavoriteItinerariesLoaded -> {
-                    val itineraries = (itineraryState as ItineraryState.FavoriteItinerariesLoaded).itineraries
-                    if (itineraries.isEmpty()) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(Background)
-                                .padding(Metrics.Margins.large),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            TextBody("Você não adicionou nenhum roteiro aos favoritos")
-                        }
-                    } else {
-                        ItineraryList(
-                            itineraries = itineraries,
-                            onItineraryClick = { 
-                                viewModel.handleAction(ItineraryAction.LoadItineraryDetails(it.id))
-                                navController.navigate("itinerary_details/${it.id}")
-                            },
-                            onFavoriteClick = { itinerary, isFavorite ->
-                                viewModel.handleAction(ItineraryAction.ToggleFavorite(itinerary, isFavorite))
-                            }
-                        )
-                    }
+            is ItineraryState.FavoriteItinerariesLoaded -> {
+                val itineraries = (itineraryState as ItineraryState.FavoriteItinerariesLoaded).itineraries
+                if (itineraries.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                    .fillMaxSize()
+                    .background(Background)
+                    .padding(Metrics.Margins.large),
+                    contentAlignment = Alignment.Center
+                ) {
+                    TextBody("Você não adicionou nenhum roteiro aos favoritos")
                 }
-                
-                else -> {}
+                } else {
+                ItineraryList(
+                    itineraries = itineraries,
+                    onItineraryClick = { 
+                    viewModel.handleAction(ItineraryAction.LoadItineraryDetails(it.id))
+                    navController.navigate("itinerary_details/${it.id}")
+                    },
+                    onFavoriteClick = { itinerary, isFavorite ->
+                    viewModel.handleAction(ItineraryAction.ToggleFavorite(itinerary, isFavorite))
+                    }
+                )
+                }
+            }
+            
+            else -> {}
             }
         }
     }
@@ -268,7 +276,7 @@ fun ItineraryCard(
                         Icon(
                             imageVector = if (itinerary.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                             contentDescription = "Favoritar",
-                            tint = if (itinerary.isFavorite) Colors.Orange500 else Color.Gray
+                            tint = if (itinerary.isFavorite) Colors.Orange500 else Color.White
                         )
                     }
                 }
@@ -498,7 +506,7 @@ fun AttractionCard(attraction: ItineraryAttraction) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = 2.dp,
-        backgroundColor = Color(0xFF2A2A2A),
+        backgroundColor = Color(0xFFFFFFFF),
         shape = RoundedCornerShape(8.dp)
     ) {
         Row(

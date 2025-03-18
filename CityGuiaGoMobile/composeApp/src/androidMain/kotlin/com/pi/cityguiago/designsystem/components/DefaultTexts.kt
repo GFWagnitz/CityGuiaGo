@@ -10,6 +10,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
 import com.pi.cityguiago.designsystem.*
 
@@ -71,11 +72,12 @@ fun TextH3(
     text: String,
     modifier: Modifier = Modifier,
     colorMode: ColorMode = ColorMode.Primary,
+    colorValue: Color? = null,
     textAlign: TextAlign? = null,
     maxLines: Int = Int.MAX_VALUE,
     overflow: TextOverflow = TextOverflow.Ellipsis
 ) {
-    val color = when (colorMode) {
+    val color = colorValue ?: when (colorMode) {
         ColorMode.Primary -> PrimaryTitle
         ColorMode.Secondary -> SecondaryTitle
     }
