@@ -12,3 +12,8 @@ val PrimaryTitle = Color(0xFF000000)
 val SecondaryTitle = Color(0xFFFFFFFF)
 val PrimaryBody = Color(0xFF474C60)
 val SecondaryBody = Color(0xFFDADBDF)
+
+// Additional colors
+object Colors {
+    val Orange500 = Color(0xFFF57C00)
+}

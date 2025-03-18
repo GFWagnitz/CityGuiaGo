@@ -233,3 +233,51 @@ fun LinkText(
         overflow = overflow
     )
 }
+
+@Composable
+fun TextBody(
+    text: String,
+    modifier: Modifier = Modifier,
+    colorMode: ColorMode = ColorMode.Primary,
+    textAlign: TextAlign? = null,
+    maxLines: Int = Int.MAX_VALUE,
+    overflow: TextOverflow = TextOverflow.Ellipsis
+) {
+    val color = when (colorMode) {
+        ColorMode.Primary -> PrimaryBody
+        ColorMode.Secondary -> SecondaryBody
+    }
+    Text(
+        text = text,
+        style = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 16.sp, fontWeight = FontWeight.Normal),
+        color = color,
+        textAlign = textAlign,
+        modifier = modifier,
+        maxLines = maxLines,
+        overflow = overflow
+    )
+}
+
+@Composable
+fun TextCaption(
+    text: String,
+    modifier: Modifier = Modifier,
+    colorMode: ColorMode = ColorMode.Primary,
+    textAlign: TextAlign? = null,
+    maxLines: Int = Int.MAX_VALUE,
+    overflow: TextOverflow = TextOverflow.Ellipsis
+) {
+    val color = when (colorMode) {
+        ColorMode.Primary -> PrimaryBody
+        ColorMode.Secondary -> SecondaryBody
+    }
+    Text(
+        text = text,
+        style = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 12.sp, fontWeight = FontWeight.Normal),
+        color = color,
+        textAlign = textAlign,
+        modifier = modifier,
+        maxLines = maxLines,
+        overflow = overflow
+    )
+}

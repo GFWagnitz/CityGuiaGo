@@ -31,7 +31,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -49,23 +49,20 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.pi.cityguiago.designsystem.Background
-import com.pi.cityguiago.designsystem.Foreground
+import com.pi.cityguiago.designsystem.Colors
 import com.pi.cityguiago.designsystem.Metrics
-import com.pi.cityguiago.designsystem.Orange500
-import com.pi.cityguiago.designsystem.components.LoadingView
+import com.pi.cityguiago.designsystem.components.Loading
 import com.pi.cityguiago.designsystem.components.TextH2
 import com.pi.cityguiago.designsystem.components.TextH3
-import com.pi.cityguiago.designsystem.components.TextOverline
-import com.pi.cityguiago.designsystem.components.TextRegular
-import com.pi.cityguiago.designsystem.components.VerticalSpacers
+import com.pi.cityguiago.designsystem.components.TextBody
+import com.pi.cityguiago.designsystem.components.TextCaption
+import com.pi.cityguiago.designsystem.components.VerticalSpacer
 import com.pi.cityguiago.model.Itinerary
 import com.pi.cityguiago.model.ItineraryAttraction
 import com.pi.cityguiago.module.Itinerary.ItineraryAction
 import com.pi.cityguiago.module.Itinerary.ItineraryEffect
 import com.pi.cityguiago.module.Itinerary.ItineraryState
 import com.pi.cityguiago.module.Itinerary.ItineraryViewModel
-import com.pi.cityguiago.module.home.HomeEvent
-import com.pi.cityguiago.module.home.HomeState
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -124,12 +121,12 @@ fun ItinerariesView(
             TabRow(
                 selectedTabIndex = tabIndex,
                 backgroundColor = Background,
-                contentColor = Foreground,
+                contentColor = Color.White,
                 indicator = { tabPositions ->
                     TabRowDefaults.Indicator(
                         Modifier.padding(horizontal = 40.dp),
                         height = 2.dp,
-                        color = Orange500
+                        color = Colors.Orange500
                     )
                 }
             ) {
@@ -150,7 +147,7 @@ fun ItinerariesView(
                             .background(Background),
                         contentAlignment = Alignment.Center
                     ) {
-                        LoadingView()
+                        Loading()
                     }
                 }
 
@@ -162,7 +159,7 @@ fun ItinerariesView(
                             .padding(Metrics.Margins.large),
                         contentAlignment = Alignment.Center
                     ) {
-                        TextRegular((itineraryState as ItineraryState.Error).message)
+                        TextBody((itineraryState as ItineraryState.Error).message)
                     }
                 }
 
@@ -190,7 +187,7 @@ fun ItinerariesView(
                                 .padding(Metrics.Margins.large),
                             contentAlignment = Alignment.Center
                         ) {
-                            TextRegular("Você não adicionou nenhum roteiro aos favoritos")
+                            TextBody("Você não adicionou nenhum roteiro aos favoritos")
                         }
                     } else {
                         ItineraryList(
@@ -224,7 +221,7 @@ fun ItineraryList(
             .padding(horizontal = Metrics.Margins.large),
         verticalArrangement = Arrangement.spacedBy(Metrics.Margins.medium)
     ) {
-        item { VerticalSpacers.Medium() }
+        item { VerticalSpacer(Metrics.Margins.medium) }
         
         items(itineraries) { itinerary ->
             ItineraryCard(
@@ -234,7 +231,7 @@ fun ItineraryList(
             )
         }
         
-        item { VerticalSpacers.Large() }
+        item { VerticalSpacer(Metrics.Margins.large) }
     }
 }
 
@@ -270,15 +267,15 @@ fun ItineraryCard(
                         Icon(
                             imageVector = if (itinerary.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                             contentDescription = "Favoritar",
-                            tint = if (itinerary.isFavorite) Orange500 else Color.Gray
+                            tint = if (itinerary.isFavorite) Colors.Orange500 else Color.Gray
                         )
                     }
                 }
             }
             
-            TextRegular(itinerary.descricao)
+            TextBody(itinerary.descricao)
             
-            VerticalSpacers.Small()
+            VerticalSpacer(Metrics.Margins.small)
             
             Row(
                 verticalAlignment = Alignment.CenterVertically
@@ -289,17 +286,17 @@ fun ItineraryCard(
                     tint = Color.Gray,
                     modifier = Modifier.size(16.dp)
                 )
-                TextOverline(" ${itinerary.user.nome ?: itinerary.user.username}")
+                TextCaption(" ${itinerary.user.username}")
                 
                 if (itinerary.duracao != null) {
                     Spacer(modifier = Modifier.weight(1f))
                     Icon(
-                        imageVector = Icons.Default.Schedule,
+                        imageVector = Icons.Default.AccessTime,
                         contentDescription = null,
                         tint = Color.Gray,
                         modifier = Modifier.size(16.dp)
                     )
-                    TextOverline(" ${itinerary.duracao} dias")
+                    TextCaption(" ${itinerary.duracao} dias")
                 }
             }
         }
@@ -356,7 +353,7 @@ fun ItineraryDetailsView(
                         .background(Background),
                     contentAlignment = Alignment.Center
                 ) {
-                    LoadingView()
+                    Loading()
                 }
             }
 
@@ -368,7 +365,7 @@ fun ItineraryDetailsView(
                         .padding(Metrics.Margins.large),
                     contentAlignment = Alignment.Center
                 ) {
-                    TextRegular((itineraryState as ItineraryState.Error).message)
+                    TextBody((itineraryState as ItineraryState.Error).message)
                 }
             }
 
@@ -390,7 +387,7 @@ fun ItineraryDetailsView(
                             .fillMaxWidth()
                             .padding(horizontal = Metrics.Margins.large)
                     ) {
-                        VerticalSpacers.Medium()
+                        VerticalSpacer(Metrics.Margins.medium)
                         
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -410,14 +407,14 @@ fun ItineraryDetailsView(
                                 Icon(
                                     imageVector = if (itinerary.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                                     contentDescription = "Favoritar",
-                                    tint = if (itinerary.isFavorite) Orange500 else Color.Gray
+                                    tint = if (itinerary.isFavorite) Colors.Orange500 else Color.Gray
                                 )
                             }
                         }
                         
-                        TextRegular(itinerary.descricao)
+                        TextBody(itinerary.descricao)
                         
-                        VerticalSpacers.Small()
+                        VerticalSpacer(Metrics.Margins.small)
                         
                         Row(
                             verticalAlignment = Alignment.CenterVertically
@@ -428,23 +425,23 @@ fun ItineraryDetailsView(
                                 tint = Color.Gray,
                                 modifier = Modifier.size(16.dp)
                             )
-                            TextOverline(" ${itinerary.user.nome ?: itinerary.user.username}")
+                            TextCaption(" ${itinerary.user.username}")
                             
                             if (itinerary.duracao != null) {
                                 Spacer(modifier = Modifier.weight(1f))
                                 Icon(
-                                    imageVector = Icons.Default.Schedule,
+                                    imageVector = Icons.Default.AccessTime,
                                     contentDescription = null,
                                     tint = Color.Gray,
                                     modifier = Modifier.size(16.dp)
                                 )
-                                TextOverline(" ${itinerary.duracao} dias")
+                                TextCaption(" ${itinerary.duracao} dias")
                             }
                         }
                         
-                        VerticalSpacers.Medium()
+                        VerticalSpacer(Metrics.Margins.medium)
                         Divider()
-                        VerticalSpacers.Medium()
+                        VerticalSpacer(Metrics.Margins.medium)
                     }
                     
                     // Days with attractions
@@ -456,7 +453,7 @@ fun ItineraryDetailsView(
                                 .padding(Metrics.Margins.large),
                             contentAlignment = Alignment.Center
                         ) {
-                            TextRegular("Este roteiro não possui atrações")
+                            TextBody("Este roteiro não possui atrações")
                         }
                     } else {
                         val sortedDays = attractionsByDay.keys.sorted()
@@ -470,23 +467,23 @@ fun ItineraryDetailsView(
                                     .padding(horizontal = Metrics.Margins.large)
                             ) {
                                 TextH3("Dia $day")
-                                VerticalSpacers.Small()
+                                VerticalSpacer(Metrics.Margins.small)
                                 
                                 dayAttractions.sortedBy { it.ordem }.forEach { attraction ->
                                     AttractionCard(attraction)
-                                    VerticalSpacers.Small()
+                                    VerticalSpacer(Metrics.Margins.small)
                                 }
                                 
-                                VerticalSpacers.Medium()
+                                VerticalSpacer(Metrics.Margins.medium)
                                 if (day != sortedDays.last()) {
                                     Divider()
-                                    VerticalSpacers.Medium()
+                                    VerticalSpacer(Metrics.Margins.medium)
                                 }
                             }
                         }
                     }
                     
-                    VerticalSpacers.Large()
+                    VerticalSpacer(Metrics.Margins.large)
                 }
             }
             
@@ -513,7 +510,7 @@ fun AttractionCard(attraction: ItineraryAttraction) {
                 modifier = Modifier
                     .size(40.dp)
                     .clip(RoundedCornerShape(4.dp))
-                    .background(Orange500),
+                    .background(Colors.Orange500),
                 contentAlignment = Alignment.Center
             ) {
                 TextH3(attraction.ordem.toString())
@@ -525,7 +522,7 @@ fun AttractionCard(attraction: ItineraryAttraction) {
                     .weight(1f)
             ) {
                 TextH3(attraction.atracao.nome)
-                TextRegular(attraction.atracao.descricao)
+                TextBody(attraction.atracao.descricao)
             }
         }
     }
