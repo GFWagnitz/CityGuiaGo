@@ -22,6 +22,10 @@ from django.conf import settings
 from django.contrib import messages
 from .forms import ImportAtracoesForm
 from .management.commands.import_atracoes import Command
+from django.views.generic import TemplateView
+
+class LandingPageView(TemplateView):
+    template_name = 'core/landing.html'
 
 class SignupView(generics.CreateAPIView):
     serializer_class = UserSerializer
