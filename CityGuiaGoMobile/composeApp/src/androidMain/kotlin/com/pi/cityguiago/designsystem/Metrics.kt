@@ -9,6 +9,7 @@ object Metrics {
         val micro = 4.dp
         val small = 8.dp
         val default = 16.dp
+        val medium = 20.dp
         val large = 24.dp
         val huge = 32.dp
         val giant = 48.dp

@@ -10,6 +10,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
 import com.pi.cityguiago.designsystem.*
 
@@ -71,11 +72,12 @@ fun TextH3(
     text: String,
     modifier: Modifier = Modifier,
     colorMode: ColorMode = ColorMode.Primary,
+    colorValue: Color? = null,
     textAlign: TextAlign? = null,
     maxLines: Int = Int.MAX_VALUE,
     overflow: TextOverflow = TextOverflow.Ellipsis
 ) {
-    val color = when (colorMode) {
+    val color = colorValue ?: when (colorMode) {
         ColorMode.Primary -> PrimaryTitle
         ColorMode.Secondary -> SecondaryTitle
     }
@@ -229,6 +231,54 @@ fun LinkText(
         color = color,
         textDecoration = TextDecoration.Underline,
         modifier = modifier.clickable(onClick = onClick),
+        maxLines = maxLines,
+        overflow = overflow
+    )
+}
+
+@Composable
+fun TextBody(
+    text: String,
+    modifier: Modifier = Modifier,
+    colorMode: ColorMode = ColorMode.Primary,
+    textAlign: TextAlign? = null,
+    maxLines: Int = Int.MAX_VALUE,
+    overflow: TextOverflow = TextOverflow.Ellipsis
+) {
+    val color = when (colorMode) {
+        ColorMode.Primary -> PrimaryBody
+        ColorMode.Secondary -> SecondaryBody
+    }
+    Text(
+        text = text,
+        style = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 16.sp, fontWeight = FontWeight.Normal),
+        color = color,
+        textAlign = textAlign,
+        modifier = modifier,
+        maxLines = maxLines,
+        overflow = overflow
+    )
+}
+
+@Composable
+fun TextCaption(
+    text: String,
+    modifier: Modifier = Modifier,
+    colorMode: ColorMode = ColorMode.Primary,
+    textAlign: TextAlign? = null,
+    maxLines: Int = Int.MAX_VALUE,
+    overflow: TextOverflow = TextOverflow.Ellipsis
+) {
+    val color = when (colorMode) {
+        ColorMode.Primary -> PrimaryBody
+        ColorMode.Secondary -> SecondaryBody
+    }
+    Text(
+        text = text,
+        style = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 12.sp, fontWeight = FontWeight.Normal),
+        color = color,
+        textAlign = textAlign,
+        modifier = modifier,
         maxLines = maxLines,
         overflow = overflow
     )
