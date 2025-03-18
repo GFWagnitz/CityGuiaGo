@@ -27,6 +27,44 @@
             background-color: #212529;
             color: white;
         }
+        .app-screenshot {
+            max-height: 500px;
+            object-fit: contain;
+            margin: 0 auto;
+            display: block;
+            border: 1px solid #dee2e6;
+        }
+        .app-screenshot-container {
+            height: 500px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        .hero-image {
+            max-height: 550px;
+            object-fit: contain;
+            margin: 0 auto;
+            display: block;
+        }
+        .hero-image-container {
+            height: auto;
+            max-height: 550px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        @media (max-width: 768px) {
+            .app-screenshot-container {
+                height: 350px;
+            }
+            .app-screenshot {
+                max-height: 350px;
+            }
+            .hero-image {
+                max-height: 400px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -65,8 +103,8 @@
                     </div>
                 </div>
                 <div class="col-lg-6">
-                    <div class="mt-4 mt-lg-0">
-                        <img src="/media/home/home.jpg" alt="Tela inicial do CityGuiaGo" class="img-fluid rounded shadow">
+                    <div class="mt-4 mt-lg-0 hero-image-container">
+                        <img src="/media/home/home.jpg" alt="Tela inicial do CityGuiaGo" class="img-fluid rounded shadow hero-image">
                     </div>
                 </div>
             </div>
@@ -127,29 +165,29 @@
         <div class="container">
             <h2 class="text-center mb-5">Nosso Aplicativo</h2>
             <div class="row g-4">
-                <div class="col-md-6">
-                    <div class="text-center">
-                        <img src="/media/home/home.jpg" alt="Tela inicial do CityGuiaGo" class="img-fluid rounded shadow">
+                <div class="col-6 col-md-3">
+                    <div class="text-center app-screenshot-container">
+                        <img src="/media/home/home.jpg" alt="Tela inicial do CityGuiaGo" class="img-fluid rounded shadow app-screenshot">
                     </div>
                     <h3 class="h5 mt-3 text-center">Tela inicial</h3>
                 </div>
-                <div class="col-md-6">
-                    <div class="text-center">
-                        <img src="/media/home/atracao.jpg" alt="Tela de atrações do CityGuiaGo" class="img-fluid rounded shadow">
+                <div class="col-6 col-md-3">
+                    <div class="text-center app-screenshot-container">
+                        <img src="/media/home/atracao.jpg" alt="Tela de atrações do CityGuiaGo" class="img-fluid rounded shadow app-screenshot">
                     </div>
-                    <h3 class="h5 mt-3 text-center">Explore atrações próximas</h3>
+                    <h3 class="h5 mt-3 text-center">Explore atrações</h3>
                 </div>
-                <div class="col-md-6">
-                    <div class="text-center">
-                        <img src="/media/home/roteiro.jpg" alt="Tela de roteiro do CityGuiaGo" class="img-fluid rounded shadow">
+                <div class="col-6 col-md-3">
+                    <div class="text-center app-screenshot-container">
+                        <img src="/media/home/roteiro.jpg" alt="Tela de roteiro do CityGuiaGo" class="img-fluid rounded shadow app-screenshot">
                     </div>
                     <h3 class="h5 mt-3 text-center">Crie roteiros</h3>
                 </div>
-                <div class="col-md-6">
-                    <div class="text-center">
-                        <img src="/media/home/roteiro_lista.jpg" alt="Tela de lista de roteiros do CityGuiaGo" class="img-fluid rounded shadow">
+                <div class="col-6 col-md-3">
+                    <div class="text-center app-screenshot-container">
+                        <img src="/media/home/roteiros_lista.jpg" alt="Tela de lista de roteiros do CityGuiaGo" class="img-fluid rounded shadow app-screenshot">
                     </div>
-                    <h3 class="h5 mt-3 text-center">Gerencie seus roteiros</h3>
+                    <h3 class="h5 mt-3 text-center">Seus roteiros</h3>
                 </div>
             </div>
         </div>
