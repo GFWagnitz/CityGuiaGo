@@ -10,7 +10,7 @@ data class Itinerary(
     val public: Boolean,
     val duracao: Int? = null,
     val user: User,
-    val categoria: String? = null,
+    val categoria: Category? = null,
     val isFavorite: Boolean = false,
     val attractions: List<ItineraryAttraction> = emptyList()
 )
@@ -18,7 +18,6 @@ data class Itinerary(
 @Serializable
 data class ItineraryAttraction(
     val id: String,
-    val roteiro: String,
     val atracao: Attraction,
     val dia: Int,
     val ordem: Int

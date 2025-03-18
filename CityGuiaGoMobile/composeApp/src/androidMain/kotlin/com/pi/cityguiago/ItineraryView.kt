@@ -62,9 +62,11 @@ import com.pi.cityguiago.module.Itinerary.ItineraryAction
 import com.pi.cityguiago.module.Itinerary.ItineraryEffect
 import com.pi.cityguiago.module.Itinerary.ItineraryState
 import com.pi.cityguiago.module.Itinerary.ItineraryViewModel
+import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.androidx.compose.koinViewModel
 
-@Composable
+
+@Composable @Preview
 fun ItinerariesView(
     navController: NavHostController,
     viewModel: ItineraryViewModel = koinViewModel()
