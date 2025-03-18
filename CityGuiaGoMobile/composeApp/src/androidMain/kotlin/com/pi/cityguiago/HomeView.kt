@@ -514,7 +514,7 @@ fun ItineraryCard(itinerary: Itinerary, modifier: Modifier = Modifier) {
             Column {
                 TextH5(text = itinerary.titulo)
                 VerticalSpacers.Small()
-                TextBody2(text = itinerary.duracao?.toString()?.plus(" dias") ?: "")
+                TextBody2(text = itinerary.duracao.toString() ?: "")
             }
         }
     }

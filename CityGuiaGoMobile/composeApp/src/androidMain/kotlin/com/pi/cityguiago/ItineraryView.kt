@@ -31,7 +31,6 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -291,7 +290,7 @@ fun ItineraryCard(
                 if (itinerary.duracao != null) {
                     Spacer(modifier = Modifier.weight(1f))
                     Icon(
-                        imageVector = Icons.Default.AccessTime,
+                        imageVector = Icons.Default.Favorite,
                         contentDescription = null,
                         tint = Color.Gray,
                         modifier = Modifier.size(16.dp)
@@ -430,7 +429,7 @@ fun ItineraryDetailsView(
                             if (itinerary.duracao != null) {
                                 Spacer(modifier = Modifier.weight(1f))
                                 Icon(
-                                    imageVector = Icons.Default.AccessTime,
+                                    imageVector = Icons.Default.Favorite,
                                     contentDescription = null,
                                     tint = Color.Gray,
                                     modifier = Modifier.size(16.dp)

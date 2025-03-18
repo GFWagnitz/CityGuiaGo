@@ -16,9 +16,12 @@ import com.pi.cityguiago.network.PrefCacheManager
 import io.ktor.client.engine.HttpClientEngine
 import org.koin.core.module.Module
 import org.koin.dsl.module
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.core.DataStore
 
-fun sharedModule(engine: HttpClientEngine): Module = module {
+fun sharedModule(engine: HttpClientEngine, dataStore: DataStore<Preferences>): Module = module {
     single { ApiClient(engine) }
+    single { PrefCacheManager(dataStore) }
     single { RegisterService(get()) }
     factory { RegisterViewModel(get()) } // Changed to factory
     single { LoginService(get()) }
