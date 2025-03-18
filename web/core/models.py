@@ -1,22 +1,26 @@
 from django.db import models
 from django.utils import timezone
+from django.contrib.auth.models import AbstractUser
 import uuid
+import os
 
-class Usuarios(models.Model):
+class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    nome = models.CharField(max_length=255)
-    email = models.EmailField(max_length=255)  # Use EmailField for email validation
-    password = models.CharField(max_length=255)
-    created_at = models.DateTimeField(default=timezone.now)  # Use timezone.now for automatic timestamp
-    avatar = models.CharField(max_length=255, blank=True, null=True) # Added blank=True, null=True
-
+    nome = models.CharField(max_length=255, blank=True, null=True)
+    avatar = models.CharField(max_length=255, blank=True, null=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    
+    # Mapping fields from Usuarios to User fields
+    # nome will be used for display, but we'll keep username for login
+    # email remains the same
+    # password is handled by AbstractUser
+    
     def __str__(self):
-        return self.nome
+        return self.nome if self.nome else self.username
     
     class Meta:
         verbose_name = "Usuário"
         verbose_name_plural = "Usuários"
-
 
 class Categorias(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -60,11 +64,12 @@ class Roteiros(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     titulo = models.CharField(max_length=255)
     descricao = models.CharField(max_length=255)
-    user = models.ForeignKey(Usuarios, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     categoria = models.ForeignKey(Categorias, on_delete=models.SET_NULL, null=True, blank=True)
     public = models.BooleanField(default=False)  # Added default value
     created_at = models.DateTimeField(default=timezone.now)
-    duracao_estimada = models.IntegerField(blank=True, null=True) # Added blank=True, null=True
+    duracao = models.IntegerField(blank=True, null=True)  # Renamed from duracao_estimada
+    atracoes = models.ManyToManyField(Atracoes, through='RoteiroAtracao', related_name='roteiros')
 
     def __str__(self):
         return self.titulo
@@ -74,12 +79,61 @@ class Roteiros(models.Model):
         verbose_name_plural = "Roteiros"
 
 
+class RoteiroAtracao(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    roteiro = models.ForeignKey(Roteiros, on_delete=models.CASCADE)
+    atracao = models.ForeignKey(Atracoes, on_delete=models.CASCADE)
+    dia = models.PositiveIntegerField(default=1)  # Starting from 1, not 0
+    ordem = models.PositiveIntegerField(default=1)  # Order within the entire roteiro
+    created_at = models.DateTimeField(default=timezone.now)
+
+    def save(self, *args, **kwargs):
+        # If this is a new entry or the order has changed
+        if not self.pk or self._state.adding:
+            # Get all roteiro_atracoes with the same roteiro and greater or equal ordem
+            subsequent_entries = RoteiroAtracao.objects.filter(
+                roteiro=self.roteiro, 
+                ordem__gte=self.ordem
+            ).exclude(pk=self.pk)
+            
+            # Increment ordem for all subsequent entries
+            for entry in subsequent_entries:
+                entry.ordem += 1
+                entry.save()
+        
+        super().save(*args, **kwargs)
+    
+    def delete(self, *args, **kwargs):
+        ordem = self.ordem
+        roteiro = self.roteiro
+        
+        # Delete this entry
+        super().delete(*args, **kwargs)
+        
+        # Update the ordem of all subsequent entries
+        subsequent_entries = RoteiroAtracao.objects.filter(
+            roteiro=roteiro, 
+            ordem__gt=ordem
+        )
+        
+        for entry in subsequent_entries:
+            entry.ordem -= 1
+            entry.save()
+    
+    def __str__(self):
+        return f"{self.roteiro.titulo} - {self.atracao.nome} (Dia {self.dia}, Ordem {self.ordem})"
+    
+    class Meta:
+        verbose_name = "Roteiro-Atração"
+        verbose_name_plural = "Roteiro-Atrações"
+        ordering = ['roteiro', 'ordem']
+        unique_together = [['roteiro', 'ordem']]
 
 class Avaliacoes(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     atracao = models.ForeignKey(Atracoes, on_delete=models.CASCADE, null=True, blank=True) # Use ForeignKey.  CASCADE is a good default.
     roteiro = models.ForeignKey(Roteiros, on_delete=models.CASCADE, null=True, blank=True)
-    user = models.ForeignKey(Usuarios, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(default=timezone.now)
     nota = models.IntegerField()
     comentario = models.CharField(max_length=255, blank=True, null=True) # Added blank=True, null=True
@@ -121,7 +175,7 @@ class Denuncias(models.Model):
     )
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(Usuarios, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     descricao = models.CharField(max_length=255)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pendente') # Use choices for enums.  Added default.
     atracao = models.ForeignKey(Atracoes, on_delete=models.CASCADE, null=True, blank=True)
@@ -138,11 +192,20 @@ class Denuncias(models.Model):
         verbose_name = "Denúncia"
         verbose_name_plural = "Denúncias"
 
+def atracao_image_path(instance, filename):
+    """Generate path for attraction images"""
+    # Get the file extension
+    ext = filename.split('.')[-1]
+    # Generate filename as random UUID
+    filename = f"{uuid.uuid4()}.{ext}"
+    # Return the path
+    return os.path.join('atracoes', filename)
+
 class Imagens(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    caminho = models.CharField(max_length=255)  # Consider using ImageField or FileField
-    atracao = models.ForeignKey(Atracoes, on_delete=models.CASCADE, null=True, blank=True, related_name='imagens') # Use ForeignKey.  CASCADE.
-    user = models.ForeignKey(Usuarios, on_delete=models.CASCADE, null=True, blank=True, related_name='imagens')
+    caminho = models.CharField(max_length=255)  # Path to the image file
+    atracao = models.ForeignKey(Atracoes, on_delete=models.CASCADE, null=True, blank=True, related_name='imagens')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='imagens')
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):

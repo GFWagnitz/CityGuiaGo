@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,8 +26,8 @@ SECRET_KEY = 'django-insecure-k7c!3_slob#!zms#jn^pu&8v$pu17f2ovp5-3-)&1do3esoj&%
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['cityguiago.com']
-CSRF_TRUSTED_ORIGINS = ['https://cityguiago.com']
+ALLOWED_HOSTS = ['cityguiago.com', 'localhost', '127.0.0.1']
+CSRF_TRUSTED_ORIGINS = ['https://cityguiago.com', 'http://localhost', 'http://127.0.0.1']
 
 
 # Application definition
@@ -77,10 +78,13 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# Get the database path from environment variable or use the default
+DB_PATH = os.environ.get('DB_PATH', BASE_DIR / 'db.sqlite3')
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': '/data/db.sqlite3',
+        'NAME': DB_PATH,
     }
 }
 
@@ -120,11 +124,20 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Media files (User uploads)
+MEDIA_URL = '/media/'
+MEDIA_PATH = os.environ.get('MEDIA_PATH', BASE_DIR / 'media')
+MEDIA_ROOT = MEDIA_PATH
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Configure the custom user model
+AUTH_USER_MODEL = 'core.User'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [

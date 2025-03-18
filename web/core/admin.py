@@ -1,5 +1,10 @@
 from django.contrib import admin
-from .models import Usuarios, Categorias, Atracoes, Roteiros, Avaliacoes, Ofertas, Denuncias, Imagens
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from .models import User, Categorias, Atracoes, Roteiros, Avaliacoes, Ofertas, Denuncias, Imagens, RoteiroAtracao
+from django.urls import path
+from django.urls import reverse
+from django.utils.html import format_html
+from .views import import_atracoes_view
 
 # Inline models for nested representation in the admin
 
@@ -17,12 +22,30 @@ class AvaliacoesInline(admin.TabularInline):
     model = Avaliacoes
     extra = 1
 
-@admin.register(Usuarios)
-class UsuariosAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'email', 'created_at')  # Fields to display in the list view
-    search_fields = ('nome', 'email')  # Enable searching by name and email
-    list_filter = ('created_at',)  # Add a filter for creation date
+class RoteiroAtracaoInline(admin.TabularInline):
+    model = RoteiroAtracao
+    extra = 1
+    fields = ('atracao', 'dia', 'ordem')
+    autocomplete_fields = ['atracao']
+
+@admin.register(User)
+class UserAdmin(BaseUserAdmin):
+    list_display = ('username', 'email', 'nome', 'created_at', 'is_staff')
+    search_fields = ('username', 'email', 'nome')
+    list_filter = ('created_at', 'is_staff', 'is_superuser')
     inlines = [ImagensInline]
+    fieldsets = (
+        (None, {'fields': ('username', 'password')}),
+        ('Personal info', {'fields': ('nome', 'email', 'avatar')}),
+        ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
+        ('Important dates', {'fields': ('created_at', 'last_login', 'date_joined')}),
+    )
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('username', 'email', 'nome', 'password1'),
+        }),
+    )
 
 @admin.register(Categorias)
 class CategoriasAdmin(admin.ModelAdmin):
@@ -73,14 +96,33 @@ class AtracoesAdmin(admin.ModelAdmin):
 
         })
     )
+    
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path('import-atracoes/', import_atracoes_view, name='import_atracoes'),
+        ]
+        return custom_urls + urls
+    
+    def changelist_view(self, request, extra_context=None):
+        extra_context = extra_context or {}
+        extra_context['import_url'] = reverse('admin:import_atracoes')
+        return super().changelist_view(request, extra_context=extra_context)
 
 
 @admin.register(Roteiros)
 class RoteirosAdmin(admin.ModelAdmin):
-    list_display = ('titulo', 'user', 'categoria', 'public', 'created_at', 'duracao_estimada')
+    list_display = ('titulo', 'user', 'categoria', 'public', 'created_at', 'duracao')
     search_fields = ('titulo', 'descricao', 'user__nome')  # Search user by name
     list_filter = ('public', 'created_at', 'categoria', 'user')
-    inlines = [AvaliacoesInline]
+    inlines = [RoteiroAtracaoInline, AvaliacoesInline]
+
+@admin.register(RoteiroAtracao)
+class RoteiroAtracaoAdmin(admin.ModelAdmin):
+    list_display = ('roteiro', 'atracao', 'dia', 'ordem', 'created_at')
+    search_fields = ('roteiro__titulo', 'atracao__nome')
+    list_filter = ('dia', 'created_at', 'roteiro', 'atracao')
+    autocomplete_fields = ['roteiro', 'atracao']
 
 @admin.register(Avaliacoes)
 class AvaliacoesAdmin(admin.ModelAdmin):
